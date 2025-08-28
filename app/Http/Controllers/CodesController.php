@@ -49,20 +49,20 @@ class CodesController extends Controller
     private function getPrefix($area)
     {
         switch($area){
-            case 'Jinja':{ return $data = ['code'=>'SMK2', 'area'=>'Jinja']; break; }
+            case 'Jinja':{ return $data = ['code'=>'SMKJ', 'area'=>'Jinja']; break; }
             //case 'Iganga':{ $data = ['code'=>'KP23', 'area'=>'Iganga']; break; }
-            case 'Mbale':{ return $data = ['code'=>'SMK4', 'area'=>'Mbale']; break; }
+            case 'Mbale':{ return $data = ['code'=>'SMKM', 'area'=>'Mbale']; break; }
             //case 'Soroti':{ $data = ['code'=>'KP25', 'area'=>'Soroti']; break; }
-            case 'Lira':{ return $data = ['code'=>'SMK6', 'area'=>'Lira']; break; }
-            case 'Gulu':{ return $data = ['code'=>'SMK7', 'area'=>'Gulu']; break; }
-            case 'Arua':{ return $data = ['code'=>'SMK8', 'area'=>'Arua']; break; }
+            case 'Lira':{ return $data = ['code'=>'SMKL', 'area'=>'Lira']; break; }
+            case 'Gulu':{ return $data = ['code'=>'SMKG', 'area'=>'Gulu']; break; }
+            case 'Arua':{ return $data = ['code'=>'SMKA', 'area'=>'Arua']; break; }
             //case 'Masindi':{ return $data = ['code'=>'KP29', 'area'=>'Masindi']; break; }
             //case 'Hoima':{ return $data = ['code'=>'KP42', 'area'=>'Hoima']; break; }
-            case 'Fort':{ return $data = ['code'=>'SMK3', 'area'=>'Fort Portal']; break; }
-            case 'Mbarara':{ return $data = ['code'=>'SMKD', 'area'=>'Mbarara']; break; }
-            case 'Masaka':{ return $data = ['code'=>'SMK5', 'area'=>'Masaka']; break; }
+            case 'Fort':{ return $data = ['code'=>'SMKF', 'area'=>'Fort Portal']; break; }
+            case 'Mbarara':{ return $data = ['code'=>'SMKR', 'area'=>'Mbarara']; break; }
+            case 'Masaka':{ return $data = ['code'=>'SMKS', 'area'=>'Masaka']; break; }
             case 'Test':{ return $data = ['code'=>'SMKZ', 'area'=>'Test']; break; }
-            default: { return $data = ['code'=>'KPK', 'area'=>'Kampala']; break;}
+            default: { return $data = ['code'=>'SMK', 'area'=>'Kampala']; break;}
          
 
         }
