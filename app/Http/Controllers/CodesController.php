@@ -64,7 +64,6 @@ class CodesController extends Controller
             case 'Test':{ return $data = ['code'=>'SMKZ', 'area'=>'Test']; break; }
             default: { return $data = ['code'=>'SMK', 'area'=>'Kampala']; break;}
          
-
         }
        
     }
