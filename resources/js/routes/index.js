@@ -6,7 +6,7 @@ import AuthLayout from "@/components/layouts/AuthLayout.vue";
 import MasterLayout from "@/components/layouts/MasterLayout.vue";
 
 //Auth
-import Login from "@/pages/auth/Login.vue";
+import Login from "@/pages/Auth/Login.vue";
 
 //Master
 import Dashboard from "@/pages/master/Dashboard.vue";
