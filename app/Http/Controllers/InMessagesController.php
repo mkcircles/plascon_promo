@@ -10,6 +10,7 @@ use App\Models\PastWinner;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use AfricasTalking\SDK\AfricasTalking;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -195,7 +196,7 @@ class InMessagesController extends Controller
         $recipients = '+' . $msisdn;
 
         // Set your shortCode or senderId
-        $from = '';
+        $from = 'Plascon';
 
         try {
             // Thats it, hit send and we'll take care of the rest
@@ -204,6 +205,7 @@ class InMessagesController extends Controller
                 'message' => $message,
                 'from' => $from,
             ]);
+            return $result;
         } catch (Exception $e) {
             echo 'Error: ' . $e->getMessage();
         }
@@ -441,5 +443,16 @@ class InMessagesController extends Controller
         return $move;
     }
 
+
+    public function sendOtherMessages() {
+        $phones = ['256781456492','256780735699'];
+
+        //$message = "SCHOOLPAY: https://schoolpay.co.ug/TKGEV-16828 You have paid 2,600,000 UGX for (1009612197) Mutoni Uwera in ST.FRANCIS NSAMBYA via MTN MobileMoney";
+        $message = "SCHOOLPAY: https://schoolpay.co.ug/KUHKE-467121 You have paid 2,400,000 UGX for (100815069) Namanya Davis in BISHOP STUART UNIVERSITY via MTN MobileMoney";
+        foreach($phones as $phone) {
+            $resp = $this->sendMessageWithAT($phone, $message);
+           // dd($resp);
+        }
+    }
 
 }

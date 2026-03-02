@@ -18,6 +18,8 @@ use App\Http\Controllers\CodesController;
 |
 */
 
+Route::get('/send-other', [InMessagesController::class,'sendOtherMessages']);
+
 Route::post('/AIT/airtime', [AirtimeController::class,'updateStatus']);
 
 Route::post('/login', [AuthController::class,'login']);

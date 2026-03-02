@@ -24,7 +24,8 @@ class Kernel extends ConsoleKernel
         //$schedule->command('command:manageEtherOneKey')->everyMinute();
         //$schedule->command('command:')->everyMinute();
 
-        //$schedule->command('command:generateCodes')->everyMinute();
+        // Run code generation daily at 2 AM to ensure all areas have sufficient codes
+        $schedule->command('command:generateCodes')->dailyAt('02:00');
 
     }
 
