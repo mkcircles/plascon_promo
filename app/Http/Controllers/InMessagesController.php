@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class InMessagesController extends Controller
 {
@@ -32,8 +33,13 @@ class InMessagesController extends Controller
     public $unsupportedNetwork = 'Thank you for choosing Pepsi. This promotion is not supported on your network. Ts n Cs apply';
 
 
-    public function receiveMessages($msisdn, $text)
+    public function receiveMessages(Request $request)
     {
+        $msisdn = $request->input('msisdn');
+        $text = $request->input('text');
+
+        Log::info('Received message from: ' . $msisdn . ' with message: ' . $text);
+
         //Record the message
         $message = InMessages::create([
             'msisdn' => $msisdn,
