@@ -229,6 +229,10 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="mt-8 px-4 md:px-6">
+                <BrandUsageChart />
+            </div>
         </div>
 
         
@@ -240,6 +244,7 @@ import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 import { ref, onMounted, computed } from "vue";
 import MessageChart from "@/components/Chart/MessageChart.vue";
+import BrandUsageChart from "@/components/Chart/BrandUsageChart.vue";
 
 let codes = ref();
 let valid_codes = ref();

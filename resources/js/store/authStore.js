@@ -9,13 +9,13 @@ export const useAuthStore = defineStore('auth', {
             user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
             token: localStorage.getItem('token') || null,
         }
-      },
-      getters: {
+    },
+    getters: {
         getisAuth: state => state.isAuth,
         getUser: state => state.user,
         getToken: state => state.token,
-        },
-    
+    },
+
     actions: {
         login(payload) {
             return new Promise((resolve, reject) => {
@@ -45,5 +45,5 @@ export const useAuthStore = defineStore('auth', {
         }
 
     },
-    
-  })
+
+})

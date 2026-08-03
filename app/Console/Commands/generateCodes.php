@@ -3,62 +3,24 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 use App\Models\Codes;
+use Carbon\Carbon;
 
-class generateCodes extends Command
+class GenerateCodes extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'command:generateCodes {--reset : Reset cache for all areas}';
+    protected $signature = 'generate:codes {count : The number of codes to generate} {brand=Pepsi : The brand for the codes}';
 
     /**
-     * The console description.
+     * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate 30,000 codes for all areas using URL calls';
-
-    /**
-     * The areas to generate codes for
-     *
-     * @var array
-     */
-    protected $areas = [
-        'Jinja' => 'Jinja',
-        'Mbale' => 'Mbale', 
-        'Lira' => 'Lira',
-        'Gulu' => 'Gulu',
-        'Arua' => 'Arua',
-        'Fort' => 'Fort Portal',
-        'Mbarara' => 'Mbarara',
-        'Masaka' => 'Masaka',
-        'Kampala' => 'Kampala'
-    ];
-
-    /**
-     * Target number of codes per area
-     *
-     * @var int
-     */
-    protected $targetCount = 30000;
-
-    /**
-     * Batch size for each generation call
-     *
-     * @var int
-     */
-    protected $batchSize = 100;
-
-    /**
-     * Delay between API calls (seconds)
-     *
-     * @var int
-     */
-    protected $delay = 15;
+    protected $description = 'Generate a specified number of promo codes for a given brand';
 
     /**
      * Execute the console command.
@@ -67,191 +29,103 @@ class generateCodes extends Command
      */
     public function handle()
     {
-        // Handle reset option
-        if ($this->option('reset')) {
-            $this->resetAllAreaCache();
-            return 0;
+        $count = (int) $this->argument('count');
+        $brand = $this->argument('brand');
+
+        if ($count <= 0) {
+            $this->error('The count must be a positive integer.');
+            return 1;
         }
 
-        $this->info('Starting code generation for all areas...');
-        $this->info('Target: ' . number_format($this->targetCount) . ' codes per area');
-        $this->info('Batch size: ' . $this->batchSize . ' codes per call');
-        $this->info('Delay between calls: ' . $this->delay . ' seconds');
-        $this->info('');
+        $prefixData = $this->getPrefix($brand);
+        echo "Prefix Data: " . json_encode($prefixData) . PHP_EOL;
+        $prefix = $prefixData['code'];
+        $actualBrand = $prefixData['brand'];
 
-        // Get areas that need codes (using cache to track progress)
-        $pendingAreas = $this->getPendingAreas();
-        
-        if (empty($pendingAreas)) {
-            $this->info('🎯 All areas already have sufficient codes!');
-            return 0;
+        $this->info("Generating {$count} codes for brand '{$actualBrand}' with prefix '{$prefix}'...");
+
+        $generated = 0;
+        $attempts = 0;
+        $maxAttempts = $count * 5; // Prevent infinite loops
+
+        $bar = $this->output->createProgressBar($count);
+        $bar->start();
+
+        while ($generated < $count && $attempts < $maxAttempts) {
+            $attempts++;
+
+            // Match CodesController logic
+            if (strlen($prefix) == 3) {
+                $suffix = $this->createCode(5);
+            } elseif (strlen($prefix) == 4) {
+                $suffix = $this->createCode(4);
+            } else {
+                $suffix = $this->createCode(8 - strlen($prefix));
+            }
+
+            $finalCode = $prefix . $suffix;
+
+            if ($this->checkExistance($finalCode)) {
+                $this->saveCode($finalCode, $actualBrand);
+                $generated++;
+                $bar->advance();
+            }
         }
 
-        $this->info('Areas needing codes: ' . count($pendingAreas));
-        $this->info('');
+        $bar->finish();
+        $this->newLine();
 
-        foreach ($pendingAreas as $areaCode => $areaName) {
-            $this->generateCodesForArea($areaCode, $areaName);
+        if ($generated < $count) {
+            $this->warn("Successfully generated {$generated} of {$count} codes. Stop due to duplicate codes generation limit.");
+        } else {
+            $this->info("Successfully generated all {$generated} codes.");
         }
 
-        $this->info('');
-        $this->info('Code generation completed for all pending areas!');
-        
         return 0;
     }
 
-    /**
-     * Generate codes for a specific area
-     *
-     * @param string $areaCode
-     * @param string $areaName
-     * @return void
-     */
-    public function generateCodesForArea($areaCode, $areaName)
+    private function getPrefix($brand)
     {
-        $this->info("Processing area: {$areaName} ({$areaCode})");
-        
-        // Set cache key for this area
-        $cacheKey = "code_generation_{$areaCode}";
-        cache()->put($cacheKey, 'processing', now()->addHours(2));
-        
-        // Get current count for this area
-        $currentCount = $this->getAreaCodeCount($areaName);
-        $this->info("Current codes: " . number_format($currentCount));
-        
-        if ($currentCount >= $this->targetCount) {
-            $this->info("✓ {$areaName} already has sufficient codes ({$currentCount})");
-            cache()->forget($cacheKey);
-            return;
+        switch (strtolower($brand)) {
+            case 'mirinda fruity':
+                return ['code' => 'CBMF', 'brand' => 'Mirinda Fruity'];
+            case 'mirinda green apple':
+                return ['code' => 'CBMA', 'brand' => 'Mirinda Green Apple'];
+            case 'mirinda orange':
+                return ['code' => 'CBMZ', 'brand' => 'Mirinda Orange'];
+            case 'mirinda pineapple':
+                return ['code' => 'CBMP', 'brand' => 'Mirinda Pineapple'];
+            default:
+                return ['code' => 'CBP', 'brand' => 'Pepsi'];
         }
-        
-        $needed = $this->targetCount - $currentCount;
-        $this->info("Need to generate: " . number_format($needed) . " more codes");
-        
-        $batches = ceil($needed / $this->batchSize);
-        $this->info("Will generate in {$batches} batches of {$this->batchSize}");
-        
-        $generated = 0;
-        $batchNumber = 1;
-        
-        while ($currentCount < $this->targetCount && $batchNumber <= 100) { // Safety limit
-            $this->info("  Batch {$batchNumber}: Generating {$this->batchSize} codes...");
-            
-            try {
-                // Call the URL to generate codes
-                $response = Http::get(url("/codes/generate/{$areaCode}/{$this->batchSize}"));
-                
-                if ($response->successful()) {
-                    // Wait for the generation to complete
-                    sleep($this->delay);
-                    
-                    // Check new count
-                    $newCount = $this->getAreaCodeCount($areaName);
-                    $batchGenerated = $newCount - $currentCount;
-                    
-                    $this->info("    ✓ Generated {$batchGenerated} codes (Total: {$newCount})");
-                    
-                    $currentCount = $newCount;
-                    $generated += $batchGenerated;
-                    
-                    // If we're close to target, adjust batch size
-                    if (($this->targetCount - $currentCount) < $this->batchSize) {
-                        $this->batchSize = $this->targetCount - $currentCount;
-                        $this->info("    Adjusted batch size to {$this->batchSize} for final batch");
-                    }
-                } else {
-                    $this->error("    ✗ Failed to generate codes. Response: " . $response->status());
-                    break;
-                }
-                
-            } catch (\Exception $e) {
-                $this->error("    ✗ Exception occurred: " . $e->getMessage());
-                break;
-            }
-            
-            $batchNumber++;
-            
-            // Progress update
-            $progress = round(($currentCount / $this->targetCount) * 100, 1);
-            $this->info("    Progress: {$progress}% ({$currentCount}/{$this->targetCount})");
-        }
-        
-        $finalCount = $this->getAreaCodeCount($areaName);
-        $this->info("✓ {$areaName}: Final count: " . number_format($finalCount));
-        
-        if ($finalCount >= $this->targetCount) {
-            $this->info("  🎯 Target reached successfully!");
-            // Mark area as completed in cache
-            cache()->put($cacheKey, 'completed', now()->addDays(7));
-        } else {
-            $this->warn("  ⚠️  Target not fully reached. Generated: " . number_format($finalCount));
-            cache()->forget($cacheKey);
-        }
-        
-        $this->info('');
     }
 
-    /**
-     * Get areas that need codes (not completed)
-     *
-     * @return array
-     */
-    private function getPendingAreas()
+    private function createCode($length)
     {
-        $pendingAreas = [];
-        
-        foreach ($this->areas as $areaCode => $areaName) {
-            $cacheKey = "code_generation_{$areaCode}";
-            $cacheStatus = cache()->get($cacheKey);
-            
-            // Skip if area is marked as completed in cache
-            if ($cacheStatus === 'completed') {
-                $this->info("Skipping {$areaName} - marked as completed in cache");
-                continue;
-            }
-            
-            // Check current count
-            $currentCount = $this->getAreaCodeCount($areaName);
-            
-            if ($currentCount < $this->targetCount) {
-                $pendingAreas[$areaCode] = $areaName;
-            } else {
-                // Mark as completed since it already has enough codes
-                cache()->put($cacheKey, 'completed', now()->addDays(7));
-                $this->info("Marking {$areaName} as completed - already has {$currentCount} codes");
-            }
+        $characters = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
-        
-        return $pendingAreas;
+        return $randomString;
     }
 
-    /**
-     * Reset cache for all areas (useful for testing or resetting the system)
-     *
-     * @return void
-     */
-    private function resetAllAreaCache()
+    private function checkExistance($finalCode)
     {
-        $this->info('Resetting cache for all areas...');
-        
-        foreach ($this->areas as $areaCode => $areaName) {
-            $cacheKey = "code_generation_{$areaCode}";
-            cache()->forget($cacheKey);
-            $this->info("✓ Cleared cache for {$areaName}");
-        }
-        
-        $this->info('');
-        $this->info('Cache reset completed! All areas will be processed again.');
+        return !Codes::where('code', $finalCode)->exists();
     }
 
-    /**
-     * Get the current code count for an area
-     *
-     * @param string $areaName
-     * @return int
-     */
-    private function getAreaCodeCount($areaName)
+    private function saveCode($finalCode, $brand)
     {
-        return Codes::where('area', $areaName)->count();
+        Codes::insert([
+            'code' => $finalCode,
+            'brand' => $brand,
+            'status' => 'pending',
+            'inMessageId' => '',
+            'prizeWon' => '',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
     }
 }

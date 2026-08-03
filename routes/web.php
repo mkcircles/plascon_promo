@@ -16,12 +16,12 @@ use App\Http\Controllers\CodesController;
 |
 */
 
-Route::get('/etherone/airtime/callback', [AirtimeController::class,'receiveEtherOneCallBack'])->name('etherone.airtime.callback');
+Route::get('/etherone/airtime/callback', [AirtimeController::class, 'receiveEtherOneCallBack'])->name('etherone.airtime.callback');
 
-Route::get('/receive/{msisdn}/{message}', [InMessagesController::class,'receiveMessages'])->name('api.message');
-Route::get('/codes/generate/{area}/{count}', [CodesController::class,'generateCodes'])->name('generate.codes');
+Route::get('/inmsg/receive', [InMessagesController::class, 'receiveMessages'])->name('api.message');
+//Route::get('/codes/generate/{area}/{count}', [CodesController::class,'generateCodes'])->name('generate.codes');
 
 
 Route::get('{any}', function () {
     return view('app');
-})->where('any','.*');
+})->where('any', '.*');

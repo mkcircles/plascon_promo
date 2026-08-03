@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Codes extends Model
 {
     use HasFactory;
-    protected $fillable =['code','area','status','inMessageId','prizeWon'];
+    protected $fillable =['code','brand','status','inMessageId','prizeWon'];
 
     // protected $with = ['message'];
 

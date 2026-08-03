@@ -23,6 +23,8 @@ Route::get('/send-other', [InMessagesController::class,'sendOtherMessages']);
 Route::post('/AIT/airtime', [AirtimeController::class,'updateStatus']);
 
 Route::post('/login', [AuthController::class,'login']);
+Route::post('/forgot-password', [AuthController::class,'forgotPassword']);
+Route::post('/reset-password', [AuthController::class,'resetPassword']);
 
 Route::get('/chart', [InMessagesController::class,'getChart']);
 
@@ -31,14 +33,18 @@ Route::get('/chart/area', [InMessagesController::class,'getAreaChart']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/summary', [InMessagesController::class,'getSummaries']);
+    Route::get('/brand-usage-chart', [CodesController::class,'getBrandUsageChart']);
     Route::get('search/in-messages/param/{param}', [InMessagesController::class,'searchInMessagesCodes']);
     Route::get('promo-codes/{page?}', [CodesController::class,'getCodes']);
-    Route::get('area-codes/{area}/{page?}', [CodesController::class,'getAreaCodes']);
+    Route::get('brand-codes/{brand}/{page?}', [CodesController::class,'getBrandCodes']);
     Route::get('used-codes/{page?}', [CodesController::class,'getUsedCodes']);
     Route::get('in-messages', [InMessagesController::class,'getInMessages']);
     Route::get('in-messages/search/{phone}', [InMessagesController::class,'searchInMessages']);
     Route::get('airtime', [AirtimeController::class,'index']);
     Route::get('airtime/search/{phone}', [AirtimeController::class,'searchAirtime']);
+    Route::get('reports/codes', [CodesController::class,'getCodesReport']);
+    Route::get('reports/in-messages', [InMessagesController::class,'getInMessagesReport']);
+    Route::post('change-password', [AuthController::class, 'changePassword']);
     Route::get('past-winners/{status}', [PastWinnerController::class,'index']);
     Route::post('past-winners/add', [PastWinnerController::class,'store']);
     Route::delete('past-winners/delete/{PastWinner}', [PastWinnerController::class,'destroy']);

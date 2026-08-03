@@ -18,20 +18,18 @@ use Illuminate\Support\Facades\DB;
 
 class InMessagesController extends Controller
 {
-    public $airtime = 2000; //amount to be sent
+    public $airtime = 5000; //amount to be sent
     public $isActive = true;
-    public $winnerRate = 71; //1 in 3 chance of winning
+    public $winnerRate = 1; //Everyone wins 5000
 
     /************MESSAGE TEMPLATES**************/
-    public $airtimeWinnerMessage = 'Congrats, you have entered into the Plascon Paint n Win draw for a chance to win Ugx 1m. You also won Airtime to be redeemed instantly. Ts n Cs apply.';
-    public $penWinnerMessage = 'Congrats, you have entered into the Plascon Paint n Win draw for a chance to win Ugx 1m. You also won Pen to be redeemed instantly. Ts n Cs apply';
-    public $invalidCodeMessage = 'Thanks for participating in the Plascon Paint n Win promo. This code is invalid. Please check the scratch card and try again or contact your Plascon agent';
-    public $alreadyUsedMessage = 'Thanks for participating in the Plascon Paint n Win promo. This code has already been captured. Try another one or contact your local Plascon agent.';
-    public $closed = 'Thank you for taking part in the paint n win promotion. It ended on 11 Dec 2022. Look out for more exciting offers from Plascon. Ts n Cs apply';
-    public $blocked = 'Thank you for choosing Plascon. You are not eligible to participate in this Promo. See Ts and Cs on www.plascon.africa/uganda.';
-    public $notStarted = 'Thank you for taking part in the paint n win promotion. It starts on 1 October 2023. Look out for more exciting offers from Plascon. Ts n Cs apply';
-    public $unsupportedNetwork = 'Thank you for choosing Plascon. This promotion is not supported on your network. Ts n Cs apply';
-    public $movement = [0,0,30,210,600,900,1500,1500,1800,2100,1500,600,1500,1200,600,1200,1200,900,1200,1200,1200,1500,1500,1500,1500,1800,2400,2400,2100,2400,2400,2100,2700,1800,1800,2100,1800,1800,1800,1800,1800,1800,1800,1500,1800,600,1500,1500,1800,600,1800,1500,1500,1500,1500,1800,1500,1200,1500,2100,1500,300,300,300];
+    public $airtimeWinnerMessage = 'Congrats! You have won instant Airtime in the Pepsi Drink and Win promo. It will be credited to your phone shortly. Ts n Cs apply.';
+    public $invalidCodeMessage = 'Thanks for participating in the Pepsi Drink and Win promo. This code is invalid. Please check the bottle cap and try again or contact your Pepsi agent';
+    public $alreadyUsedMessage = 'Thanks for participating in the Pepsi Drink and Win promo. This code has already been captured. Try another one or contact your local Pepsi agent.';
+    public $closed = 'Thank you for taking part in the Pepsi Drink and Win promotion. It ended on 11 Dec 2022. Look out for more exciting offers from Pepsi. Ts n Cs apply';
+    public $blocked = 'Thank you for choosing Pepsi. You are not eligible to participate in this Promo. See Ts and Cs on www.pepsi.co.ug.';
+    public $notStarted = 'Thank you for taking part in the Pepsi Drink and Win promotion. It starts on 1 October 2023. Look out for more exciting offers from Pepsi. Ts n Cs apply';
+    public $unsupportedNetwork = 'Thank you for choosing Pepsi. This promotion is not supported on your network. Ts n Cs apply';
 
 
     public function receiveMessages($msisdn, $text)
@@ -46,9 +44,9 @@ class InMessagesController extends Controller
         //Check if Campaign is active
         if ($this->isActive) {
             //Check if Phone Number is MTN or Airtel
-            if(str_starts_with($message->msisdn, '25671')){
+            if (str_starts_with($message->msisdn, '25671')) {
                 $response = $this->unsupportedNetwork;
-            }else{
+            } else {
                 //Check if code is valid and hasn't been used
                 $code = $this->checkCode($text);
                 if ($code) {
@@ -70,7 +68,7 @@ class InMessagesController extends Controller
                             ]);
 
                             /***********GET USER PRIZE*************/
-                            $amount = $entry->id % $this->winnerRate == 0 ? 2000 : 1000;
+                            $amount = $this->airtime;
                             //Allocate Prize
                             $prize = 'Airtime - ' . $amount;
                             $entry->update(['prize' => $prize]);
@@ -88,8 +86,7 @@ class InMessagesController extends Controller
                         $message->update(['status' => 'used']);
                         $response = $this->alreadyUsedMessage;
                     }
-                }
-                else {
+                } else {
                     $message->update(['status' => 'invalid']);
                     $response = $this->invalidCodeMessage;
                 }
@@ -172,7 +169,7 @@ class InMessagesController extends Controller
         return response()->json($inMessages);
     }
 
-    public function sendMessage($msisdn, $message, $inMessageId=null)
+    public function sendMessage($msisdn, $message, $inMessageId = null)
     {
         //Send With Africa's Talking
         //$this->sendMessageWithAT($msisdn, $message);
@@ -186,7 +183,8 @@ class InMessagesController extends Controller
     /***********************************
      * Send Message With Africa's Talking
      */
-    public function sendMessageWithAT($msisdn, $message){
+    public function sendMessageWithAT($msisdn, $message)
+    {
         $username = env('AT_USERNAME');
         $apiKey = env('AT_API_KEY');
         $AT = new AfricasTalking($username, $apiKey);
@@ -214,28 +212,30 @@ class InMessagesController extends Controller
     /***********************************
      * Send Message With EtherOne
      */
-    public function sendMessageWithEtherOne($msisdn,$message,$messageId){
+    public function sendMessageWithEtherOne($msisdn, $message, $messageId)
+    {
         $AuthDetails = $this->getToken();
         $token = json_decode($AuthDetails)->access_token;
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer '.$token,
+            'Authorization' => 'Bearer ' . $token,
         ])->post('https://openapi.etheroneafrica.com/api/v1/sms/request', [
-            'msisdn' => $msisdn,
-            'messageUID' => base64_encode($messageId),
-            'message' => $message
-        ]);
+                    'msisdn' => $msisdn,
+                    'messageUID' => base64_encode($messageId),
+                    'message' => $message
+                ]);
         return $response->body();
     }
 
     /***********************************
      * Get Token
      */
-    private function getToken(){
-        if (Cache::has('etherToken')){
+    private function getToken()
+    {
+        if (Cache::has('etherToken')) {
             return Cache::get('etherToken');
-        }else{
+        } else {
             $headers = [
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
@@ -258,19 +258,14 @@ class InMessagesController extends Controller
     {
         $data = [];
 
-        //Get total of $movement array
-        $adjustment = array_sum($this->movement);
-        //Airtime calculation
-        $adjSum = (($adjustment/3)*2*1000) + (($adjustment/3)*2000);
-
-        $inMsgCount = InMessages::count()+$adjustment;
-        $validInMsgCount = InMessages::where('status', 'valid')->count()+$adjustment;
-        $airtimeWinnerSum =Airtime::sum('amount')+ $adjSum;
+        $inMsgCount = InMessages::count();
+        $validInMsgCount = InMessages::where('status', 'valid')->count();
+        $airtimeWinnerSum = Airtime::sum('amount');
 
 
         $data['codes'] = number_format(Codes::count());
         $data['valid_codes'] = number_format($validInMsgCount);
-        $data['airtime'] = number_format(667000000);
+        $data['airtime'] = number_format(10000000);
         $data['received_messages'] = number_format($inMsgCount);
         $data['valid_messages'] = number_format($validInMsgCount);
         $data['airtime_winner'] = number_format($validInMsgCount);
@@ -288,50 +283,48 @@ class InMessagesController extends Controller
         return response()->json($inMessages);
     }
 
-    public function getChart(){
-        $data = [];
+    public function getChart(Request $request)
+    {
+        $days = (int) $request->get('days', 7);
+        if (!in_array($days, [7, 30])) {
+            $days = 7;
+        }
+
         $dates = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $dates[] = now()->subDays($i)->format('Y-m-d');
+        }
+
+        $startDate = now()->subDays($days - 1)->startOfDay();
+
+        $results = DB::table('in_messages')
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->where('created_at', '>=', $startDate)
+            ->groupBy('date')
+            ->get()
+            ->pluck('count', 'date')
+            ->toArray();
+
         $counts = [];
-
-        $calculateData = [];
-        //Set Start date is 2023-09-29
-
-        $startDate = Carbon::createFromFormat('Y-m-d H:i:s', '2023-09-29 00:00:00');
-        $endDate = Carbon::now();
-        $n = 0;
-        while($startDate->lte($endDate)){
-            $date = $startDate->format('Y-m-d');
-            array_push($dates, $date);
-            $count = InMessages::whereDate('created_at', $date)->count() + $this->movement[$n]??0;
-            array_push($counts, $count);
-            $startDate->addDay();
+        foreach ($dates as $date) {
+            $counts[] = $results[$date] ?? 0;
         }
-        $data['dates'] = $dates;
-        $movement = $this->movement;
 
-        $i = 0;
-        foreach($counts as $count){
-            //Calculate movement
-            $cal = isset($movement[$i]) ? $movement[$i] : 0;
-            $count = $count + $cal;
-            array_push($calculateData, $count);
-
-            $i++;
-        }
-        $data['counts'] = $calculateData;
-
-        return response()->json($data);
+        return response()->json([
+            'dates' => $dates,
+            'counts' => $counts
+        ]);
     }
 
 
-    public function getAreaChart(){
+    public function getAreaChart()
+    {
 
         //Check if cached data exists
-        if(Cache::has('areaChart')){
+        if (Cache::has('areaChart')) {
             $data = Cache::get('areaChart');
             return response()->json($data);
-        }
-        else{
+        } else {
 
             $data = [];
             $dates = [];
@@ -353,70 +346,15 @@ class InMessagesController extends Controller
             $startDate = Carbon::createFromFormat('Y-m-d H:i:s', '2023-09-29 00:00:00');
             $endDate = Carbon::now();
             $n = 0;
-            while($startDate->lte($endDate)){
+            while ($startDate->lte($endDate)) {
                 $date = $startDate->format('Y-m-d');
                 array_push($dates, $date);
-                $count = InMessages::whereDate('created_at', $date)->count() + $this->movement[$n]??0;
+                $count = InMessages::whereDate('created_at', $date)->count();
                 array_push($counts, $count);
-
-                //Calculate Jinja
-
-
                 $startDate->addDay();
             }
             $data['dates'] = $dates;
-            $movement = $this->movement;
-
-            $i = 0;
-            foreach($counts as $count){
-                //Calculate movement
-                $cal = isset($movement[$i]) ? $movement[$i] : 0;
-                $count = $count + $cal;
-                array_push($calculateData, $count);
-
-                //Calculate Jinja
-                $jinjaCount = $this->getAreaCount('Jinja',$cal,$data['dates'][$i]);
-                array_push($jinja, $jinjaCount);
-                //Calculate Arua
-                $aruaCount = $this->getAreaCount('Arua',$cal,$data['dates'][$i]);
-                array_push($arua, $aruaCount);
-                //Calculate Fort
-                $fortCount = $this->getAreaCount('Fort Portal',$cal,$dates[$i]);
-                array_push($fort, $fortCount);
-                //Calculate Kampala
-                $kampalaCount = $this->getAreaCount('Kampala',$cal,$dates[$i]);
-                array_push($kampala, $kampalaCount);
-                //Calculate Gulu
-                $guluCount = $this->getAreaCount('Gulu',$cal,$dates[$i]);
-                array_push($gulu, $guluCount);
-                //Calculate Lira
-                $liraCount = $this->getAreaCount('Lira',$cal,$dates[$i]);
-                array_push($lira, $liraCount);
-                //Calculate Mbarara
-                $mbararaCount = $this->getAreaCount('Mbarara',$cal,$dates[$i]);
-                array_push($mbarara, $mbararaCount);
-                //Calculate Masaka
-                $masakaCount = $this->getAreaCount('Masaka',$cal,$dates[$i]);
-                array_push($masaka, $masakaCount);
-                //Calculate Mbale
-                $mbaleCount = $this->getAreaCount('Mbale',$cal,$dates[$i]);
-                array_push($mbale, $mbaleCount);
-
-                $i++;
-            }
-            $data['counts'] = $calculateData;
-            $data['jinja'] = $jinja;
-            $data['arua'] = $arua;
-            $data['fort'] = $fort;
-            $data['kampala'] = $kampala;
-            $data['gulu'] = $gulu;
-            $data['lira'] = $lira;
-            $data['mbarara'] = $mbarara;
-            $data['masaka'] = $masaka;
-            $data['mbale'] = $mbale;
-
-            //Cache data
-            Cache::put('areaChart', $data, now()->addHours(7));
+            $data['counts'] = $counts;
 
             return response()->json($data);
         }
@@ -424,35 +362,46 @@ class InMessagesController extends Controller
 
     }
 
-    private function getAreaCount($area, $movement,$date)
+
+    public function getInMessagesReport(Request $request)
     {
-        $areaCount = Codes::where('area', $area)->whereDate('updated_at', $date)->count();
-        $move = $this->calcMovement($area, $movement);
-        return $areaCount+$move;
-    }
+        $from = $request->fromDate;
+        $to = $request->todate;
+        $status = $request->status;
 
-    private function calcMovement($area, $movement)
-    {
-        if($area == 'Kampala'){
-            $percentage = 0.68;
-        }else{
-            $percentage = 0.04;
+        $from = Carbon::parse($from)->startOfDay();
+        $to = Carbon::parse($to)->endOfDay();
+
+        $messages = DB::table('in_messages')
+            ->whereBetween('created_at', [$from, $to]);
+
+        if ($status && $status != 'Any') {
+            $messages = $messages->where('status', $status);
         }
-        //$percentage = $area==='Kampala' ? 0.68 : 0.04;
-        $move = $movement > 0 ? ceil($movement * $percentage):0;
-        return $move;
-    }
 
+        $messages = $messages->get();
 
-    public function sendOtherMessages() {
-        $phones = ['256781456492','256780735699'];
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=in-messages-report.csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
 
-        //$message = "SCHOOLPAY: https://schoolpay.co.ug/TKGEV-16828 You have paid 2,600,000 UGX for (1009612197) Mutoni Uwera in ST.FRANCIS NSAMBYA via MTN MobileMoney";
-        $message = "SCHOOLPAY: https://schoolpay.co.ug/KUHKE-467121 You have paid 2,400,000 UGX for (100815069) Namanya Davis in BISHOP STUART UNIVERSITY via MTN MobileMoney";
-        foreach($phones as $phone) {
-            $resp = $this->sendMessageWithAT($phone, $message);
-           // dd($resp);
-        }
+        $columns = array('ID', 'PHONE NUMBER', 'MESSAGE TEXT', 'STATUS', 'RESPONSE SENT', 'DATE');
+
+        $callback = function () use ($messages, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($messages as $msg) {
+                fputcsv($file, array($msg->id, $msg->msisdn, $msg->inText, $msg->status, $msg->response ?? '', $msg->created_at));
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
 }

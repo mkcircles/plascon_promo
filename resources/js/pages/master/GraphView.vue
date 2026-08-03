@@ -1,38 +1,20 @@
 <template>
-    <div class="relative pt-16 pb-16 bg-lightBlue-500">
-        <div class="px-4 md:px-6 mx-auto w-full container mx-auto">
-            <MessageChart />
+    <div class="container mx-auto py-8 px-4">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Analytics Dashboard</h2>
+            <p class="text-slate-500 mt-1">Visualize real-time trends for inbound SMS traffic requests.</p>
+        </div>
+
+        <div class="w-full">
+            <!-- SMS Message Traffic -->
+            <MessageTrafficChart />
         </div>
     </div>
 </template>
 
 <script setup>
-import { useAuthStore } from "@/store/authStore";
-import axios from "axios";
-import { ref, onMounted, computed } from "vue";
-import MessageChart from "@/components/Chart/MessageChart.vue";
-
-//Chart Data
-let datasets = ref();
-let labels = ref();
-
-const fetchData = axios.get("/api/chart", {
-    headers: {
-        Authorization: "Bearer " + useAuthStore().token,
-    },
-});
-
-onMounted(() => {
-    fetchData
-        .then((res) => {
-            labels.value = res.data.dates;
-            datasets.value = res.data.counts;
-        })
-        .catch((err) => {
-            console.log(err);
-        })
-        .finally(() => {});
-});
+import MessageTrafficChart from "@/components/Chart/MessageTrafficChart.vue";
 </script>
 
 <style></style>

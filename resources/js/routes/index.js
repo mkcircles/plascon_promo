@@ -11,7 +11,7 @@ import Login from "@/pages/Auth/Login.vue";
 //Master
 import Dashboard from "@/pages/master/Dashboard.vue";
 import PromoCodes from "@/pages/master/PromoCodes.vue";
-import AreaCodes from "@/pages/master/AreaCodes.vue";
+import BrandCodes from "@/pages/master/BrandCodes.vue";
 import UsedCodes from "@/pages/master/UsedCodes.vue";
 import InMessages from "@/pages/master/InMessages.vue";
 import Airtime from "@/pages/master/Airtime.vue";
@@ -20,6 +20,8 @@ import Blacklisted from "@/pages/master/Blacklisted.vue";
 import CodeSearch from "@/pages/master/CodeSearch.vue";
 import Graph from "@/pages/master/GraphView.vue";
 import AreaView from "@/pages/master/AreaView.vue";
+import Reports from "@/pages/master/Reports.vue";
+import Profile from "@/pages/master/Profile.vue";
 
 const routes = [
     {
@@ -28,7 +30,7 @@ const routes = [
         component: AuthLayout,
         meta: { isGuest: true },
         children: [
-            { path: "/", name: "home",  component: Login },
+            { path: "/", name: "home", component: Login },
             { path: "/login", component: Login },
         ]
     },
@@ -37,17 +39,19 @@ const routes = [
         component: MasterLayout,
         meta: { isAuth: true },
         children: [
-            { path: "/dashboard", name:"dashboard", component: Dashboard },
-            { path: "/codes", name:"codes", component: PromoCodes },
-            { path: "/area/:area", name:"area-codes", component: AreaCodes },
-            { path: "/messages/search/:search", name:"code-search", component: CodeSearch },
-            { path: "/codes/used", name:"usedcodes", component: UsedCodes },
-            { path: "/messages", name:"messages", component: InMessages },
-            { path: "/airtime", name:"airtime", component: Airtime },
-            { path: "/past-winners", name:"past-winner", component: PastWinners },
-            { path: "/blacklisted", name:"blacklisted", component: Blacklisted },
-            { path: "/graph", name:"graph", component: Graph },
-            { path: "/area-chart", name:"area-chart", component: AreaView },
+            { path: "/dashboard", name: "dashboard", component: Dashboard },
+            { path: "/codes", name: "codes", component: PromoCodes },
+            { path: "/brand/:brand", name: "brand-codes", component: BrandCodes },
+            { path: "/messages/search/:search", name: "code-search", component: CodeSearch },
+            { path: "/codes/used", name: "usedcodes", component: UsedCodes },
+            { path: "/messages", name: "messages", component: InMessages },
+            { path: "/airtime", name: "airtime", component: Airtime },
+            { path: "/past-winners", name: "past-winner", component: PastWinners },
+            { path: "/blacklisted", name: "blacklisted", component: Blacklisted },
+            { path: "/graph", name: "graph", component: Graph },
+            { path: "/area-chart", name: "area-chart", component: AreaView },
+            { path: "/reports", name: "reports", component: Reports },
+            { path: "/profile", name: "profile", component: Profile },
         ],
     },
 
@@ -57,6 +61,6 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes
-  });
+});
 
-  export default router;
+export default router;
