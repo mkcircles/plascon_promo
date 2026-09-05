@@ -33,10 +33,12 @@ Route::get('/chart/area', [InMessagesController::class,'getAreaChart']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/summary', [InMessagesController::class,'getSummaries']);
+    Route::get('/brands', [CodesController::class,'getDistinctBrands']);
     Route::get('/brand-usage-chart', [CodesController::class,'getBrandUsageChart']);
     Route::get('search/in-messages/param/{param}', [InMessagesController::class,'searchInMessagesCodes']);
     Route::get('promo-codes/{page?}', [CodesController::class,'getCodes']);
     Route::get('brand-codes/{brand}/{page?}', [CodesController::class,'getBrandCodes']);
+    Route::get('region-codes/{brand}/{page?}', [CodesController::class,'getBrandCodes']);
     Route::get('used-codes/{page?}', [CodesController::class,'getUsedCodes']);
     Route::get('in-messages', [InMessagesController::class,'getInMessages']);
     Route::get('in-messages/search/{phone}', [InMessagesController::class,'searchInMessages']);

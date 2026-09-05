@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <link rel="icon" type="image/png" href="/images/logo.png"/>
-  <title>Pepsi Promo Portal</title>
+  <title>Plascon Uganda Promo Portal</title>
   @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-100">

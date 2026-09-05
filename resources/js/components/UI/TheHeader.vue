@@ -1,7 +1,6 @@
 <!-- This example requires Tailwind CSS v2.0+ -->
 <template>
-  <Disclosure as="nav" class="bg-gradient-to-r from-[#002f6c] to-[#005cb4] border-b-4 border-[#e31b23] shadow-lg"
-    v-slot="{ open }">
+  <Disclosure as="nav" class="bg-white border-b-4 border-[#e31b23] shadow-lg" v-slot="{ open }">
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -9,14 +8,18 @@
           <DisclosureButton
             class="inline-flex items-center justify-center p-2 rounded-md text-blue-100 hover:text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
             <span class="sr-only">Open main menu</span>
-            <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
-            <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
+            <Bars3Icon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
+            <XMarkIcon v-else class="block h-6 w-6" aria-hidden="true" />
           </DisclosureButton>
         </div>
         <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
           <div class="flex-shrink-0 flex items-center">
-            <img class="block lg:hidden h-10 w-auto" :src="logo" alt="Pepsi" />
-            <img class="hidden lg:block h-10 w-auto" :src="logo" alt="Pepsi" />
+            <router-link to="/dashboard" class="flex items-center">
+              <img class="block lg:hidden h-12 w-auto bg-white/95 px-2 py-0.5 rounded-lg" :src="logo"
+                alt="Plascon Uganda" />
+              <img class="hidden lg:block h-12 w-auto bg-white/95 px-2.5 py-1 rounded-lg" :src="logo"
+                alt="Plascon Uganda" />
+            </router-link>
           </div>
           <!-- <div class="hidden sm:block sm:ml-6">
             <div class="flex space-x-4">
@@ -56,7 +59,8 @@
               <MenuItems
                 class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <MenuItem v-slot="{ active }">
-                  <router-link to="/profile" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Your
+                  <router-link to="/profile"
+                    :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Your
                     Profile</router-link>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
@@ -126,46 +130,66 @@
 
 <script setup>
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { BellIcon, MenuIcon, XIcon } from '@heroicons/vue/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/store/authStore';
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import router from '@/routes'
-
+import axios from 'axios'
 
 const search = ref('')
-
-
-
-
 const store = useAuthStore();
-
 let logo = "/images/logo.png";
 
-const navigation = [
-  { name: "Dashboard", to: "/dashboard", current: false },
-  {
-    name: "Promo Codes", to: "/codes", current: false,
-    subMenu: [
-      { name: "Mirinda Fruity", to: "/brand/Mirinda-Fruity", current: false },
-      { name: "Mirinda Green Apple", to: "/brand/Mirinda-Green-Apple", current: false },
-      { name: "Mirinda Orange", to: "/brand/Mirinda-Orange", current: false },
-      { name: "Mirinda Pineapple", to: "/brand/Mirinda-Pineapple", current: false },
-      { name: "All", to: "/codes", current: false },
-    ]
-  },
-  { name: "Used Codes", to: "/codes/used", current: false },
-  { name: "Messages", to: "/messages", current: false },
-  { name: "Airtime", to: "/airtime", current: false },
-  // { name: "Past Winners", to: "/past-winners", current: false },
-  // { name: "Blacklisted", to: "/blacklisted", current: false },
-  { name: "Graph", to: "/graph", current: false },
-  { name: "Reports", to: "/reports", current: false },
-];
+const dbBrands = ref([]);
+
+const fetchBrands = async () => {
+  if (!store.token) return;
+  try {
+    const res = await axios.get('/api/brands', {
+      headers: {
+        Authorization: `Bearer ${store.token}`,
+      },
+    });
+    dbBrands.value = res.data;
+  } catch (err) {
+    console.error('Failed to fetch distinct brands:', err);
+  }
+};
+
+const navigation = computed(() => {
+  const subMenu = dbBrands.value.map((brand) => ({
+    name: brand,
+    to: `/region/${encodeURIComponent(brand.replace(/\s+/g, '-'))}`,
+    current: false,
+  }));
+
+  // Always include "All" option at the end
+  subMenu.push({ name: "All", to: "/codes", current: false });
+
+  return [
+    { name: "Dashboard", to: "/dashboard", current: false },
+    {
+      name: "Promo Codes",
+      to: "/codes",
+      current: false,
+      subMenu: subMenu,
+    },
+    { name: "Used Codes", to: "/codes/used", current: false },
+    { name: "Messages", to: "/messages", current: false },
+    { name: "Airtime", to: "/airtime", current: false },
+    // { name: "Past Winners", to: "/past-winners", current: false },
+    // { name: "Blacklisted", to: "/blacklisted", current: false },
+    { name: "Graph", to: "/graph", current: false },
+    { name: "Reports", to: "/reports", current: false },
+  ];
+});
+
+onMounted(() => {
+  fetchBrands();
+});
 
 function submit() {
-
   router.push({ name: 'code-search', params: { search: search.value } })
-
 }
 
 function signOut() {

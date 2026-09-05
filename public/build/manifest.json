@@ -1,23 +1,30 @@
 {
-  "resources/js/app.js": {
-    "file": "assets/app.27f06a8b.js",
-    "src": "resources/js/app.js",
-    "isEntry": true,
-    "css": [
-      "assets/app.9aa8e165.css"
-    ]
-  },
-  "resources/js/app.css": {
-    "file": "assets/app.9aa8e165.css",
-    "src": "resources/js/app.css"
+  "node_modules/vue3-apexcharts/dist/apexcharts.ssr.esm-fe46cd2d.js": {
+    "file": "assets/apexcharts.ssr.esm-fe46cd2d-9CakV-nF.js",
+    "name": "apexcharts.ssr.esm-fe46cd2d",
+    "src": "node_modules/vue3-apexcharts/dist/apexcharts.ssr.esm-fe46cd2d.js",
+    "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app.f258248b.css",
+    "file": "assets/app-D98xlGct.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
+  "resources/js/app.js": {
+    "file": "assets/app-BB-qvvAo.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "node_modules/vue3-apexcharts/dist/apexcharts.ssr.esm-fe46cd2d.js",
+      "node_modules/vue3-apexcharts/dist/apexcharts.ssr.esm-fe46cd2d.js"
+    ],
+    "css": [
+      "assets/app-DqiQ4D5F.css"
+    ]
+  },
   "resources/sass/app.scss": {
-    "file": "assets/app.cc8d33ec.css",
+    "file": "assets/app-Dttth_SI.css",
     "src": "resources/sass/app.scss",
     "isEntry": true
   }

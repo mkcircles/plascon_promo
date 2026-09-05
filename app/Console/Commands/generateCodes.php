@@ -13,14 +13,14 @@ class GenerateCodes extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:codes {count : The number of codes to generate} {brand=Pepsi : The brand for the codes}';
+    protected $signature = 'generate:codes {count : The number of codes to generate} {brand=Soroti : The region for the codes}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate a specified number of promo codes for a given brand';
+    protected $description = 'Generate a specified number of promo codes for a given region';
 
     /**
      * Execute the console command.
@@ -41,6 +41,7 @@ class GenerateCodes extends Command
         echo "Prefix Data: " . json_encode($prefixData) . PHP_EOL;
         $prefix = $prefixData['code'];
         $actualBrand = $prefixData['brand'];
+        $suffix = "";
 
         $this->info("Generating {$count} codes for brand '{$actualBrand}' with prefix '{$prefix}'...");
 
@@ -59,9 +60,8 @@ class GenerateCodes extends Command
                 $suffix = $this->createCode(5);
             } elseif (strlen($prefix) == 4) {
                 $suffix = $this->createCode(4);
-            } else {
-                $suffix = $this->createCode(8 - strlen($prefix));
-            }
+            } else
+                $suffix = $this->createCode(6);
 
             $finalCode = $prefix . $suffix;
 
@@ -87,16 +87,24 @@ class GenerateCodes extends Command
     private function getPrefix($brand)
     {
         switch (strtolower($brand)) {
-            case 'mirinda fruity':
-                return ['code' => 'CBMF', 'brand' => 'Mirinda Fruity'];
-            case 'mirinda green apple':
-                return ['code' => 'CBMA', 'brand' => 'Mirinda Green Apple'];
-            case 'mirinda orange':
-                return ['code' => 'CBMZ', 'brand' => 'Mirinda Orange'];
-            case 'mirinda pineapple':
-                return ['code' => 'CBMP', 'brand' => 'Mirinda Pineapple'];
+            case 'arua':
+                return ['code' => 'KPMF', 'brand' => 'Arua'];
+            case 'fort portal':
+                return ['code' => 'KPMZ', 'brand' => 'Fort Portal'];
+            case 'gulu':
+                return ['code' => 'KPMF', 'brand' => 'Gulu'];
+            case 'jinja':
+                return ['code' => 'KPMA', 'brand' => 'Jinja'];
+            case 'masaka':
+                return ['code' => 'KPMZ', 'brand' => 'Masaka'];
+            case 'mbale':
+                return ['code' => 'KPMF', 'brand' => 'Mbale'];
+            case 'mbarara':
+                return ['code' => 'KPMA', 'brand' => 'Mbarara'];
+            case 'lira':
+                return ['code' => 'KPMZ', 'brand' => 'Lira'];
             default:
-                return ['code' => 'CBP', 'brand' => 'Pepsi'];
+                return ['code' => 'KP', 'brand' => 'Kampala'];
         }
     }
 

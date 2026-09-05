@@ -41,7 +41,8 @@ const routes = [
         children: [
             { path: "/dashboard", name: "dashboard", component: Dashboard },
             { path: "/codes", name: "codes", component: PromoCodes },
-            { path: "/brand/:brand", name: "brand-codes", component: BrandCodes },
+            { path: "/region/:region", name: "region-codes", component: BrandCodes },
+            { path: "/brand/:brand", redirect: to => `/region/${to.params.brand}` },
             { path: "/messages/search/:search", name: "code-search", component: CodeSearch },
             { path: "/codes/used", name: "usedcodes", component: UsedCodes },
             { path: "/messages", name: "messages", component: InMessages },

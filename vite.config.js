@@ -25,7 +25,15 @@ export default defineConfig({
     resolve: {
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',
-            '@': path.resolve(__dirname, 'resources/js'),
+            '@': '/resources/js',
+        },
+    },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                api: 'modern-compiler',
+                silenceDeprecations: ['color-functions', 'global-builtin', 'import', 'if-function'],
+            },
         },
     },
 });

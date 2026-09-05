@@ -2,12 +2,14 @@
     <div class="backdrop-blur-xl bg-white/70 border border-white/45 rounded-3xl shadow-2xl p-8 sm:p-10 transition-all duration-300 hover:shadow-blue-500/10">
         <!-- Logo and header -->
         <div class="text-center mb-8">
-            <div class="relative inline-block mb-4 group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-red-600 rounded-full blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
-                <img src="images/logo.png" alt="logo" class="relative w-32 mx-auto drop-shadow-md transition-transform duration-500 group-hover:scale-105" />
+            <div class="relative inline-block mb-5 group">
+                <div class="absolute -inset-1.5 bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-500"></div>
+                <div class="relative bg-white/90 p-3 rounded-2xl shadow-md backdrop-blur-sm">
+                    <img src="/images/logo.png" alt="Plascon Uganda" class="w-44 mx-auto transition-transform duration-500 group-hover:scale-105" />
+                </div>
             </div>
-            <h2 class="text-2xl font-bold tracking-tight text-slate-800">Promo Portal</h2>
-            <p v-if="mode === 'login'" class="text-sm text-slate-600 mt-1">Sign in to your administration panel</p>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-800">Plascon Promo Portal</h2>
+            <p v-if="mode === 'login'" class="text-sm text-slate-600 mt-1">Sign in to the Plascon administration panel</p>
             <p v-else-if="mode === 'forgot'" class="text-sm text-slate-600 mt-1">Request a password reset code</p>
             <p v-else-if="mode === 'reset'" class="text-sm text-slate-600 mt-1">Enter code to reset your password</p>
         </div>

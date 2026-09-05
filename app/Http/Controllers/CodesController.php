@@ -51,34 +51,40 @@ class CodesController extends Controller
     private function getPrefix($brand)
     {
         switch (strtolower($brand)) {
-            case 'Mirinda': {
-                return $data = ['code' => 'CBM', 'brand' => 'Mirinda'];
-                break;
-            }
-            case 'Pepsi': {
-                return $data = ['code' => 'CBP', 'brand' => 'Pepsi'];
-                break;
-            }
-            case 'Mountain Dew': {
-                return $data = ['code' => 'CBD', 'brand' => 'Mountain Dew'];
-                break;
-            }
-            case '7Up': {
-                return $data = ['code' => 'CBS', 'brand' => '7Up'];
-                break;
-            }
-            case 'Evervess': {
-                return $data = ['code' => 'CBE', 'brand' => 'Evervess'];
-                break;
-            }
-            case 'Aquafina': {
-                return $data = ['code' => 'CBA', 'brand' => 'Aquafina'];
-                break;
-            }
-            default: {
-                return $data = ['code' => 'CBT', 'brand' => 'Test'];
-                break;
-            }
+            case 'vinyl silk':
+            case 'vinyl-silk':
+                return ['code' => 'PLVS', 'brand' => 'Vinyl Silk'];
+            case 'weatherguard':
+                return ['code' => 'PLWG', 'brand' => 'Weatherguard'];
+            case 'anti-mosquito':
+            case 'anti mosquito':
+                return ['code' => 'PLAM', 'brand' => 'Anti-Mosquito'];
+            case 'super gloss':
+            case 'super-gloss':
+                return ['code' => 'PLSG', 'brand' => 'Super Gloss'];
+            case 'roof paint':
+            case 'roof-paint':
+                return ['code' => 'PLRP', 'brand' => 'Roof Paint'];
+            case 'arua':
+                return ['code' => 'KPMF', 'brand' => 'Arua'];
+            case 'fort portal':
+                return ['code' => 'KPMZ', 'brand' => 'Fort Portal'];
+            case 'gulu':
+                return ['code' => 'KPMF', 'brand' => 'Gulu'];
+            case 'jinja':
+                return ['code' => 'KPMA', 'brand' => 'Jinja'];
+            case 'masaka':
+                return ['code' => 'KPMZ', 'brand' => 'Masaka'];
+            case 'mbale':
+                return ['code' => 'KPMF', 'brand' => 'Mbale'];
+            case 'mbarara':
+                return ['code' => 'KPMA', 'brand' => 'Mbarara'];
+            case 'lira':
+                return ['code' => 'KPMZ', 'brand' => 'Lira'];
+            case 'kampala':
+                return ['code' => 'KP', 'brand' => 'Kampala'];
+            default:
+                return ['code' => 'PL', 'brand' => 'Plascon'];
         }
     }
 
@@ -133,6 +139,17 @@ class CodesController extends Controller
         return response()->json($codes);
     }
 
+    public function getDistinctBrands()
+    {
+        $brands = Codes::whereNotNull('brand')
+            ->where('brand', '!=', '')
+            ->distinct()
+            ->orderBy('brand', 'asc')
+            ->pluck('brand');
+
+        return response()->json($brands);
+    }
+
     public function getUsedCodes()
     {
         $codes = Codes::where('status', 'used')->paginate(50);
@@ -183,7 +200,6 @@ class CodesController extends Controller
     {
         $from = $request->fromDate;
         $to = $request->todate;
-        $prize = $request->prize;
         $brand = $request->brand;
 
         $from = Carbon::parse($from)->startOfDay();
@@ -194,14 +210,6 @@ class CodesController extends Controller
             ->where('status', 'used')
             ->whereBetween('updated_at', [$from, $to]);
 
-        if ($prize && $prize != 'Any') {
-            if (strtolower($prize) == 'pen') {
-                $p = 'Pen';
-            } else {
-                $p = 'Airtime - 2000';
-            }
-            $codes = $codes->where('prizeWon', $p);
-        }
         if ($brand && $brand != 'all') {
             $codes = $codes->where('brand', $brand);
         }
@@ -214,14 +222,14 @@ class CodesController extends Controller
             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
             "Expires" => "0"
         );
-        $columns = array('PHONE NUMBER', 'CODE', 'STATUS', 'PRIZE WON', 'DATE');
+        $columns = array('PHONE NUMBER', 'CODE', 'BRAND', 'STATUS', 'DATE');
 
         $callback = function () use ($codes, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
             foreach ($codes as $code) {
-                fputcsv($file, array($code->inMessageId, $code->code, $code->status, $code->prizeWon, $code->updated_at));
+                fputcsv($file, array($code->inMessageId, $code->code, $code->brand, $code->status, $code->updated_at));
             }
             fclose($file);
         };
@@ -251,7 +259,7 @@ class CodesController extends Controller
             ->toArray();
 
         if (empty($brands)) {
-            $brands = ['Mirinda Fruity', 'Mirinda Green Apple', 'Mirinda Orange', 'Mirinda Pineapple'];
+            $brands = ['Vinyl Silk', 'Weatherguard', 'Anti-Mosquito'];
         }
 
         // Query counts
@@ -285,20 +293,24 @@ class CodesController extends Controller
         // Format for ChartJS/ApexCharts
         $datasets = [];
         $colors = [
-            'Mirinda Fruity' => '#ec4899',       // Pink
-            'Mirinda Green Apple' => '#10b981',  // Green
-            'Mirinda Orange' => '#f97316',       // Orange
-            'Mirinda Pineapple' => '#eab308',    // Yellow
-            'Pepsi' => '#005cb4',
-            'Mirinda' => '#f87979',
-            'Mountain Dew' => '#10b981',
-            '7Up' => '#3b82f6',
-            'Evervess' => '#8b5cf6',
-            'Aquafina' => '#06b6d4',
+            'Vinyl Silk' => '#e31b23',          // Plascon Red
+            'Weatherguard' => '#005cb4',        // Plascon Blue
+            'Anti-Mosquito' => '#10b981',       // Green
+            'Super Gloss' => '#f59e0b',         // Amber/Gold
+            'Roof Paint' => '#8b5cf6',          // Purple
+            'Kampala' => '#e31b23',
+            'Jinja' => '#005cb4',
+            'Mbarara' => '#10b981',
+            'Gulu' => '#f59e0b',
+            'Arua' => '#8b5cf6',
+            'Fort Portal' => '#06b6d4',
+            'Mbale' => '#ec4899',
+            'Masaka' => '#6366f1',
+            'Lira' => '#14b8a6',
         ];
 
         // Fallback color palette for any other dynamically added brands
-        $palette = ['#ec4899', '#10b981', '#f97316', '#eab308', '#3b82f6', '#8b5cf6', '#06b6d4'];
+        $palette = ['#e31b23', '#005cb4', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#6366f1'];
         $colorIndex = 0;
 
         foreach ($brands as $brand) {

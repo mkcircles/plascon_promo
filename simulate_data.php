@@ -4,7 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 // Brands list
-$brands = ['Pepsi', 'Mirinda', 'Mountain Dew', '7Up', 'Evervess'];
+$brands = ['Vinyl Silk', 'Weatherguard', 'Anti-Mosquito', 'Super Gloss', 'Roof Paint'];
 
 // Let's truncate tables first so we have clean test data
 Codes::truncate();
@@ -19,12 +19,12 @@ foreach ($brands as $brand) {
     
     // Prefix mapping
     $prefix = match($brand) {
-        'Mirinda' => 'CBM',
-        'Pepsi' => 'CBP',
-        'Mountain Dew' => 'CBD',
-        '7Up' => 'CBS',
-        'Evervess' => 'CBE',
-        default => 'CBT',
+        'Vinyl Silk' => 'PLVS',
+        'Weatherguard' => 'PLWG',
+        'Anti-Mosquito' => 'PLAM',
+        'Super Gloss' => 'PLSG',
+        'Roof Paint' => 'PLRP',
+        default => 'PL',
     };
 
     // Let's generate 100 codes for this brand

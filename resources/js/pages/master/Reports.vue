@@ -48,22 +48,7 @@
                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               >
                 <option value="all">All Brands</option>
-                <option value="Mirinda Fruity">Mirinda Fruity</option>
-                <option value="Mirinda Green Apple">Mirinda Green Apple</option>
-                <option value="Mirinda Orange">Mirinda Orange</option>
-                <option value="Mirinda Pineapple">Mirinda Pineapple</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Prize</label>
-              <select 
-                v-model="codesFilter.prize" 
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              >
-                <option value="Any">Any Prize</option>
-                <option value="pen">Pen</option>
-                <option value="airtime">Airtime - 2000</option>
+                <option v-for="brand in dbBrands" :key="brand" :value="brand">{{ brand }}</option>
               </select>
             </div>
           </div>
@@ -167,7 +152,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
@@ -176,12 +161,30 @@ const todayStr = new Date().toISOString().split("T")[0];
 const thirtyDaysAgoStr = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
 const authStore = useAuthStore();
+const dbBrands = ref([]);
+
+const fetchBrands = async () => {
+  if (!authStore.token) return;
+  try {
+    const res = await axios.get("/api/brands", {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+      },
+    });
+    dbBrands.value = res.data;
+  } catch (err) {
+    console.error("Failed to fetch distinct brands:", err);
+  }
+};
+
+onMounted(() => {
+  fetchBrands();
+});
 
 const codesFilter = ref({
   fromDate: thirtyDaysAgoStr,
   todate: todayStr,
-  brand: "all",
-  prize: "Any"
+  brand: "all"
 });
 
 const messagesFilter = ref({

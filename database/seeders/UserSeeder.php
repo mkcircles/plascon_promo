@@ -32,12 +32,13 @@ class UserSeeder extends Seeder
                 'role' => 'user'
             ],
             [
-                'name' => 'Pearl Elisabeth Kitimbo',
-                'email' => 'pkitimbo@pepsi-cola.co.ug',
-                'password' => bcrypt('P3ps1_ug#'),
+                'name' => 'Daniel Kayongo',
+                'email' => 'daniel.kayongo@kansaiplascon.co.ug',
+                'password' => bcrypt('w037GjfwzZ'),
                 'role' => 'user'
             ]
         ];
+
 
         foreach ($user as $key => $value) {
             User::create([

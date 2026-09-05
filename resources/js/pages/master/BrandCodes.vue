@@ -46,17 +46,17 @@ export default {
         ThePaginator,
     },
     created() {
-        this.brand = this.$route.path.split('/').pop();
+        this.brand = decodeURIComponent(this.$route.params.region || this.$route.params.brand || this.$route.path.split('/').pop());
         this.getEntries();
     },
     beforeRouteUpdate(to, from, next) {
-        this.brand = to.path.split('/').pop();
+        this.brand = decodeURIComponent(to.params.region || to.params.brand || to.path.split('/').pop());
         this.getEntries();
         next();
     },
     computed: {
         brandName() {
-            return this.brand.replace(/_/g, " ").replace(/\w\S*/g, function (txt) {
+            return this.brand.replace(/[-_]/g, " ").replace(/\w\S*/g, function (txt) {
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
             });
         },
