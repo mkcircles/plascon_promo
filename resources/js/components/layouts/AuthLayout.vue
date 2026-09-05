@@ -1,9 +1,6 @@
 <template>
-    <div class="min-h-screen w-full flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative overflow-hidden font-sans" :style="{ backgroundImage: `url('/images/plascon_background.png')` }">
-        <!-- Rich overlay for paint color depth -->
-        <div class="absolute inset-0 bg-gradient-to-tr from-slate-950/75 via-blue-950/60 to-red-950/70 pointer-events-none backdrop-blur-[2px]"></div>
-        
-        <!-- Ambient subtle glow pulses -->
+    <div class="min-h-screen w-full flex items-center justify-center p-4 bg-slate-50 relative overflow-hidden font-sans">
+        <!-- Ambient subtle glow accents -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="glow-orb orb-1"></div>
             <div class="glow-orb orb-2"></div>
@@ -20,7 +17,7 @@
     position: absolute;
     border-radius: 50%;
     filter: blur(80px);
-    opacity: 0.35;
+    opacity: 0.15;
     animation: float 10s infinite ease-in-out alternate;
 }
 .orb-1 {
