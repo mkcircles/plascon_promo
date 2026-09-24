@@ -40,7 +40,7 @@ class InMessagesController extends Controller
         $text = $data['message'] ?? null;
         $msisdn = $data['msisdn'] ?? null;
 
-        Log::info('Received message from: ' . $msisdn . ' with message: ' . $text . " Date: " . Carbon::now() . "\n");
+        Log::info('Received message from: ' . json_encode($data, true) . " Date: " . Carbon::now() . "\n");
 
         //Record the message
         $message = InMessages::create([
@@ -208,8 +208,8 @@ class InMessagesController extends Controller
     public function sendMessage($msisdn, $message, $inMessageId = null)
     {
         //Send With Africa's Talking
-        Log::info('Sending message to: ' . $msisdn . ' with message: ' . $message);
-        //$this->sendMessageWithAT($msisdn, $message);
+        //Log::info('Sending message to: ' . $msisdn . ' with message: ' . $message);
+        $this->sendMessageWithAT($msisdn, $message);
         //Send With EtherOne
         //$response = $this->sendMessageWithEtherOne($msisdn, $message, $inMessageId);
         return;
