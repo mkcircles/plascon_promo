@@ -40,7 +40,7 @@ class InMessagesController extends Controller
         $text = $data['message'] ?? null;
         $msisdn = $data['msisdn'] ?? null;
 
-        Log::info('Received message from: ' . json_encode(['msisdn' => $msisdn, 'text' => $text, 'date' => Carbon::now()]) . "\n");
+        Log::info('Received message from: ' . json_encode(['msisdn' => $msisdn, 'text' => $text, 'date' => Carbon::now()], true));
 
         //Record the message
         $message = InMessages::create([
