@@ -38,7 +38,7 @@ class InMessagesController extends Controller
         $msisdn = $request->input('msisdn');
         $text = $request->input('text');
 
-        Log::info('Received message from: ' . $msisdn . ' with message: ' . $text);
+        Log::info('Received message from: ' . $msisdn . ' with message: ' . $text . " Date: " . Carbon::now() . "\n");
 
         //Record the message
         $message = InMessages::create([
@@ -74,7 +74,7 @@ class InMessagesController extends Controller
                             ]);
 
                             /***********GET USER PRIZE*************/
-                            $amount = $this->airtime;
+                            $amount = $this->getAirtimeAmount($entry->id);
                             //Allocate Prize
                             $prize = 'Airtime - ' . $amount;
                             $entry->update(['prize' => $prize]);
@@ -110,12 +110,40 @@ class InMessagesController extends Controller
         //return $response;
     }
 
+
+
+    /**
+     * Calculates the prize amount based on entry position.
+     * Budget: UGX 560,000,000 across 400,000 codes (1:4:15 ratio).
+     *
+     * @param int $position Sequential counter/index of the redemption (1 to 400000)
+     * @return int Prize amount in UGX
+     */
+    public function getAirtimeAmount($position)
+    {
+        // Cycle repeats every 20 entries
+        $mod = $position % 20;
+
+        // 1 in 20 (5%): 20,000 winners @ 5,000 UGX = 100,000,000 UGX
+        if ($mod === 0) {
+            return 5000;
+        }
+
+        // 4 in 20 (20%): 80,000 winners @ 2,000 UGX = 160,000,000 UGX
+        if ($mod >= 1 && $mod <= 4) {
+            return 2000;
+        }
+
+        // 15 in 20 (75%): 300,000 winners @ 1,000 UGX = 300,000,000 UGX
+        return 1000;
+    }
+
     //Record Airtime to be redeemed
     public function recordAirtime($id, $msisdn, $amount)
     {
-        //$channel = 'Africa\'s Talking';
+        $channel = 'Africa\'s Talking';
         //$channel = 'True African';
-        $channel = 'EtherOne';
+        //$channel = 'EtherOne';
 
         //$amount = $this->airtime;
         $airtime = Airtime::create([
@@ -178,9 +206,10 @@ class InMessagesController extends Controller
     public function sendMessage($msisdn, $message, $inMessageId = null)
     {
         //Send With Africa's Talking
+        Log::info('Sending message to: ' . $msisdn . ' with message: ' . $message);
         //$this->sendMessageWithAT($msisdn, $message);
         //Send With EtherOne
-        $response = $this->sendMessageWithEtherOne($msisdn, $message, $inMessageId);
+        //$response = $this->sendMessageWithEtherOne($msisdn, $message, $inMessageId);
         return;
 
 
