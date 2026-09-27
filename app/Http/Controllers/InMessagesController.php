@@ -35,6 +35,7 @@ class InMessagesController extends Controller
 
     public function receiveMessages(Request $request)
     {
+        Log::info('Received message from: ' . json_encode(['request' => $request->all(), 'date' => Carbon::now()], true));
         $data = $request->all();
 
         $text = $data['message'] ?? null;

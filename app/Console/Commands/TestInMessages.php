@@ -83,9 +83,9 @@ class TestInMessages extends Command
 
         foreach ($testData as $item) {
             try {
-                $response = Http::withoutVerifying()->get($url, [
+                $response = Http::withoutVerifying()->post($url, [
                     'msisdn' => $item['msisdn'],
-                    'text' => $item['code'],
+                    'message' => $item['code'],
                 ]);
 
                 if ($response->successful()) {
