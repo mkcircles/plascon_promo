@@ -301,7 +301,7 @@ class InMessagesController extends Controller
 
         $data['codes'] = number_format(Codes::count());
         $data['valid_codes'] = number_format($validInMsgCount);
-        $data['airtime'] = number_format(0000000);
+        $data['airtime'] = number_format(560000000);
         $data['received_messages'] = number_format($inMsgCount);
         $data['valid_messages'] = number_format($validInMsgCount);
         $data['airtime_winner'] = number_format($validInMsgCount);
