@@ -52,23 +52,8 @@ class TestInMessages extends Command
         $usedPool = [];
 
         for ($i = 0; $i < $count; $i++) {
-            $msisdn = '25677' . rand(1000000, 9999999);
-
-            if ($i > 0 && $i % 12 === 0 && !empty($usedPool)) {
-                // Already used code (re-send a previously used valid code)
-                $code = $usedPool[array_rand($usedPool)];
-            } elseif ($i % 5 === 0) {
-                // Invalid non-existent code
-                $code = 'INV' . strtoupper(substr(md5((string) rand()), 0, 5));
-            } elseif ($i % 15 === 0) {
-                // Unsupported network number (25671...)
-                $msisdn = '25671' . rand(1000000, 9999999);
-                $code = array_pop($validCodes) ?? 'KPMZTEST';
-            } else {
-                // Valid pending code
-                $code = array_pop($validCodes) ?? 'KPMZTEST';
-                $usedPool[] = $code;
-            }
+            $msisdn = '256781456492';
+            $code = 'KPMZFT07';
 
             $testData[] = [
                 'msisdn' => $msisdn,

@@ -19,9 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class InMessagesController extends Controller
 {
-    public $airtime = 5000; //amount to be sent
-    public $isActive = true;
-    public $winnerRate = 1; //Everyone wins 5000
+    public $isActive = false;
 
     /************MESSAGE TEMPLATES**************/
     public $airtimeWinnerMessage = 'Congrats! You have won instant Airtime in the Plascon Paint and Win promo. It will be credited to your phone shortly. Ts n Cs apply.';
@@ -336,21 +334,45 @@ class InMessagesController extends Controller
         $startDate = now()->subDays($days - 1)->startOfDay();
 
         $results = DB::table('in_messages')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('count(*) as total'),
+                DB::raw('SUM(CASE WHEN LOWER(status) = "valid" THEN 1 ELSE 0 END) as valid'),
+                DB::raw('SUM(CASE WHEN LOWER(status) != "valid" THEN 1 ELSE 0 END) as invalid')
+            )
             ->where('created_at', '>=', $startDate)
             ->groupBy('date')
             ->get()
-            ->pluck('count', 'date')
-            ->toArray();
+            ->keyBy('date');
 
         $counts = [];
+        $total = [];
+        $valid = [];
+        $invalid = [];
+
         foreach ($dates as $date) {
-            $counts[] = $results[$date] ?? 0;
+            $row = $results->get($date);
+            $t = $row ? (int) $row->total : 0;
+            $v = $row ? (int) $row->valid : 0;
+            $inv = $row ? (int) $row->invalid : 0;
+
+            $counts[] = $t;
+            $total[] = $t;
+            $valid[] = $v;
+            $invalid[] = $inv;
         }
 
         return response()->json([
             'dates' => $dates,
-            'counts' => $counts
+            'counts' => $counts,
+            'total' => $total,
+            'valid' => $valid,
+            'invalid' => $invalid,
+            'summary' => [
+                'total' => array_sum($total),
+                'valid' => array_sum($valid),
+                'invalid' => array_sum($invalid),
+            ],
         ]);
     }
 
