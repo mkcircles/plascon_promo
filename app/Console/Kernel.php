@@ -16,11 +16,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        //$schedule->command('command:sendAirtime')->everyMinute();
+        $schedule->command('command:sendAirtime')->everyMinute();
         $schedule->command('command:checkStatus')->everyFiveMinutes();
         $schedule->command('command:processFailedTAAirtimeTransactions')->everyFiveMinutes();
         $schedule->command('command:RetryATAirtimeTransaction')->everyFiveMinutes();
-        $schedule->command('command:sendAirtimeEtherOne')->everyMinute();
+        //$schedule->command('command:sendAirtimeEtherOne')->everyMinute();
         //$schedule->command('command:manageEtherOneKey')->everyMinute();
         //$schedule->command('command:')->everyMinute();
 
@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
