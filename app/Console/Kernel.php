@@ -18,8 +18,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('command:sendAirtime')->everyMinute();
         $schedule->command('command:checkStatus')->everyFiveMinutes();
-        $schedule->command('command:processFailedTAAirtimeTransactions')->everyFiveMinutes();
-        $schedule->command('command:RetryATAirtimeTransaction')->everyFiveMinutes();
+        //$schedule->command('command:processFailedTAAirtimeTransactions')->everyFiveMinutes();
+        //$schedule->command('command:RetryATAirtimeTransaction')->everyFiveMinutes();
         //$schedule->command('command:sendAirtimeEtherOne')->everyMinute();
         //$schedule->command('command:manageEtherOneKey')->everyMinute();
         //$schedule->command('command:')->everyMinute();
