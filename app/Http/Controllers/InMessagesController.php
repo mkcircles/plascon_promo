@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class InMessagesController extends Controller
 {
-    public $isActive = false;
+    public $isActive = true;
 
     /************MESSAGE TEMPLATES**************/
     public $airtimeWinnerMessage = 'Congrats! You have won instant Airtime in the Plascon Paint and Win promo. It will be credited to your phone shortly. Ts n Cs apply.';
