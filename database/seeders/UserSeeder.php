@@ -18,6 +18,9 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        //clear existing data
+        User::query()->truncate();
+
         $user = [
             [
                 'name' => 'Root Name',
@@ -36,7 +39,14 @@ class UserSeeder extends Seeder
                 'email' => 'daniel.kayongo@kansaiplascon.co.ug',
                 'password' => bcrypt('w037GjfwzZ'),
                 'role' => 'user'
-            ]
+            ],
+
+            [
+                'name' => 'Benjamin Bicung',
+                'email' => 'BBicung@kansaiplascon.co.ug',
+                'password' => bcrypt('F7o$NlQ4vS'),
+                'role' => 'user'
+            ],
         ];
 
 
@@ -50,7 +60,6 @@ class UserSeeder extends Seeder
                 "updated_at" => date(now())
             ]);
         }
-
 
 
     }

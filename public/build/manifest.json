@@ -11,7 +11,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-DNFnV9uu.js",
+    "file": "assets/app-BBN6olT3.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -20,7 +20,7 @@
       "node_modules/vue3-apexcharts/dist/apexcharts.ssr.esm-fe46cd2d.js"
     ],
     "css": [
-      "assets/app-DTJxZA5k.css"
+      "assets/app-B0qXab_C.css"
     ]
   },
   "resources/sass/app.scss": {

@@ -166,7 +166,7 @@ const navigation = computed(() => {
   // Always include "All" option at the end
   subMenu.push({ name: "All", to: "/codes", current: false });
 
-  return [
+  const items = [
     { name: "Dashboard", to: "/dashboard", current: false },
     {
       name: "Promo Codes",
@@ -180,8 +180,13 @@ const navigation = computed(() => {
     // { name: "Past Winners", to: "/past-winners", current: false },
     // { name: "Blacklisted", to: "/blacklisted", current: false },
     { name: "Graph", to: "/graph", current: false },
-    { name: "Reports", to: "/reports", current: false },
   ];
+
+  if (store.user?.role === "admin") {
+    items.push({ name: "Reports", to: "/reports", current: false });
+  }
+
+  return items;
 });
 
 onMounted(() => {
