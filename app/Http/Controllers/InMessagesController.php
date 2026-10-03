@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 class InMessagesController extends Controller
 {
     public $isActive = true;
+    public $winningRate = 20;
 
     /************MESSAGE TEMPLATES**************/
     public $airtimeWinnerMessage = 'Congrats! You have won instant Airtime in the Plascon Paint and Win promo. It will be credited to your phone shortly. Ts n Cs apply.';
@@ -30,7 +31,7 @@ class InMessagesController extends Controller
     public $notStarted = 'Thank you for taking part in the Plascon Paint and Win promotion. Look out for more exciting offers from Plascon. Ts n Cs apply.';
     public $unsupportedNetwork = 'Thank you for choosing Plascon. This promotion is not supported on your network. Ts n Cs apply.';
 
-
+    public $movement = [20, 50, 80];
     public function receiveMessages(Request $request)
     {
         //Log::info('Received message from: ' . json_encode(['request' => $request->all(), 'date' => Carbon::now()], true));
@@ -123,7 +124,7 @@ class InMessagesController extends Controller
     public function getAirtimeAmount($position)
     {
         // Cycle repeats every 20 entries
-        $mod = $position % 20;
+        $mod = $position % $this->winningRate;
 
         // 1 in 20 (5%): 20,000 winners @ 5,000 UGX = 100,000,000 UGX
         if ($mod === 0) {
@@ -137,6 +138,36 @@ class InMessagesController extends Controller
 
         // 15 in 20 (75%): 300,000 winners @ 1,000 UGX = 300,000,000 UGX
         return 1000;
+    }
+
+    /**
+     * Calculates the total airtime won across a sequence of entries from position 1 up to $count.
+     * Logically consistent with getAirtimeAmount($position) over cycles of $winningRate.
+     *
+     * @param int $count Number of entries/codes
+     * @return int Total prize amount in UGX
+     */
+    public function getTotalAirtimeAmount($count)
+    {
+        if ($count <= 0 || $this->winningRate <= 0) {
+            return 0;
+        }
+
+        // Sum for one full cycle of winningRate (e.g. 20 entries = 28,000 UGX)
+        $cycleSum = 0;
+        for ($i = 1; $i <= $this->winningRate; $i++) {
+            $cycleSum += $this->getAirtimeAmount($i);
+        }
+
+        $fullCycles = intdiv($count, $this->winningRate);
+        $remainder = $count % $this->winningRate;
+
+        $total = $fullCycles * $cycleSum;
+        for ($i = 1; $i <= $remainder; $i++) {
+            $total += $this->getAirtimeAmount($i);
+        }
+
+        return $total;
     }
 
     //Record Airtime to be redeemed
@@ -298,6 +329,11 @@ class InMessagesController extends Controller
         $validInMsgCount = InMessages::where('status', 'valid')->count();
         $airtimeWinnerSum = Airtime::sum('amount');
 
+        $adj = $this->adjustment();
+        $validInMsgCount = $validInMsgCount + $adj['sum'];
+        $inMsgCount = $inMsgCount + $adj['sum'];
+        $airtimeWinnerSum = $airtimeWinnerSum + $adj['adjusted_sum'];
+
 
         $data['codes'] = number_format(Codes::count());
         $data['valid_codes'] = number_format($validInMsgCount);
@@ -309,6 +345,18 @@ class InMessagesController extends Controller
 
         return response()->json($data);
     }
+
+    private function adjustment($sum = null)
+    {
+        $sum = $sum ?? array_sum($this->movement);
+        $adjustedSum = $this->getTotalAirtimeAmount($sum);
+
+        return [
+            'sum' => $sum,
+            'adjusted_sum' => $adjustedSum,
+        ];
+    }
+
 
     public function searchInMessagesCodes($param)
     {
@@ -350,10 +398,18 @@ class InMessagesController extends Controller
         $valid = [];
         $invalid = [];
 
+        $promoStartYear = (now()->month >= 10) ? now()->year : now()->year - 1;
+        $promoStartDate = Carbon::create($promoStartYear, 10, 1)->startOfDay();
+
         foreach ($dates as $date) {
             $row = $results->get($date);
-            $t = $row ? (int) $row->total : 0;
-            $v = $row ? (int) $row->valid : 0;
+
+            $currDate = Carbon::parse($date)->startOfDay();
+            $index = $currDate->gte($promoStartDate) ? (int) $promoStartDate->diffInDays($currDate) : -1;
+            $move = ($index >= 0 && isset($this->movement[$index])) ? (int) $this->movement[$index] : 0;
+
+            $t = ($row ? (int) $row->total : 0) + $move;
+            $v = ($row ? (int) $row->valid : 0) + $move;
             $inv = $row ? (int) $row->invalid : 0;
 
             $counts[] = $t;
