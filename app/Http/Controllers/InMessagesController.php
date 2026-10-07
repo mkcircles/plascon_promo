@@ -31,7 +31,7 @@ class InMessagesController extends Controller
     public $notStarted = 'Thank you for taking part in the Plascon Paint and Win promotion. Look out for more exciting offers from Plascon. Ts n Cs apply.';
     public $unsupportedNetwork = 'Thank you for choosing Plascon. This promotion is not supported on your network. Ts n Cs apply.';
 
-    public $movement = [20, 50, 80];
+    public $movement = [20, 50, 80, 120, 220, 300];
     public function receiveMessages(Request $request)
     {
         //Log::info('Received message from: ' . json_encode(['request' => $request->all(), 'date' => Carbon::now()], true));
