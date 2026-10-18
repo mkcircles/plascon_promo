@@ -188,7 +188,6 @@
           <thead>
             <tr class="bg-slate-50/80 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
               <th scope="col" class="py-3.5 px-6">Phone Number</th>
-              <th scope="col" class="py-3.5 px-6">Network</th>
               <th scope="col" class="py-3.5 px-6">Status</th>
               <th scope="col" class="py-3.5 px-6">Amount</th>
               <th scope="col" class="py-3.5 px-6">Dispatched At</th>
@@ -201,11 +200,7 @@
             <template v-if="isLoading">
               <tr v-for="n in 5" :key="'skeleton-' + n" class="animate-pulse">
                 <td class="py-4 px-6">
-                  <div class="h-4 bg-slate-200 rounded w-36 mb-1.5"></div>
-                  <div class="h-3 bg-slate-100 rounded w-24"></div>
-                </td>
-                <td class="py-4 px-6">
-                  <div class="h-5 bg-slate-200 rounded-md w-14"></div>
+                  <div class="h-4 bg-slate-200 rounded w-36"></div>
                 </td>
                 <td class="py-4 px-6">
                   <div class="h-6 bg-slate-200 rounded-full w-20"></div>
@@ -235,33 +230,8 @@
                 @click="openDetails(td)"
               >
                 <!-- Phone Number -->
-                <td class="py-4 px-6">
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono font-bold text-slate-800 tracking-wide text-sm">
-                      {{ formatPhoneNumber(td.msisdn) }}
-                    </span>
-                    <button
-                      @click.stop="copyToClipboard(td.msisdn, td.id)"
-                      class="text-slate-300 hover:text-slate-600 transition-colors p-1 rounded"
-                      :title="copiedId === td.id ? 'Copied!' : 'Copy number'"
-                    >
-                      <CheckIcon v-if="copiedId === td.id" class="w-4 h-4 text-emerald-600" />
-                      <ClipboardDocumentIcon v-else class="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div class="text-[11px] text-slate-400 font-mono">
-                    MSISDN: {{ td.msisdn }}
-                  </div>
-                </td>
-
-                <!-- Network Carrier -->
-                <td class="py-4 px-6">
-                  <span
-                    class="px-2.5 py-1 rounded-md text-xs font-semibold border"
-                    :class="getCarrierBadgeClass(detectCarrier(td.msisdn))"
-                  >
-                    {{ detectCarrier(td.msisdn) }}
-                  </span>
+                <td class="py-4 px-6 font-mono font-medium text-slate-800 text-sm">
+                  {{ td.msisdn }}
                 </td>
 
                 <!-- Status -->
@@ -340,7 +310,7 @@
             <!-- Empty State -->
             <template v-else>
               <tr>
-                <td colspan="7" class="py-16 text-center">
+                <td colspan="6" class="py-16 text-center">
                   <div class="max-w-md mx-auto flex flex-col items-center">
                     <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
                       <SignalIcon class="w-8 h-8" />
