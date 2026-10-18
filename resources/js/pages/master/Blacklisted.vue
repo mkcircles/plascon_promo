@@ -268,12 +268,8 @@
                       {{ activeSearch ? 'No matching blacklisted numbers' : 'No blacklisted numbers found' }}
                     </h3>
                     <p class="text-xs text-slate-500 mt-1 mb-5">
-                      {{ activeSearch
-                        ? `We couldn't find any numbers matching "${activeSearch}". Try another search or clear the
-                      filter.`
-                        : 'No numbers have been added to the blacklist yet. Numbers added here will be protected against
-                      code abuse.'
-                      }}
+                      <span v-if="activeSearch">We couldn't find any numbers matching "{{ activeSearch }}". Try another search or clear the filter.</span>
+                      <span v-else>No numbers have been added to the blacklist yet. Numbers added here will be protected against code abuse.</span>
                     </p>
                     <div class="flex items-center gap-3">
                       <button v-if="activeSearch" @click="clearSearch"
