@@ -46,6 +46,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('airtime/summary', [AirtimeController::class,'getSummary']);
     Route::get('airtime', [AirtimeController::class,'index']);
     Route::get('airtime/search/{phone?}', [AirtimeController::class,'searchAirtime']);
+    Route::post('airtime/retry-all-failed', [AirtimeController::class, 'retryAllFailed']);
+    Route::post('airtime/{id}/retry', [AirtimeController::class, 'retryAirtime']);
     Route::get('reports/codes', [CodesController::class,'getCodesReport']);
     Route::get('reports/in-messages', [InMessagesController::class,'getInMessagesReport']);
     Route::post('change-password', [AuthController::class, 'changePassword']);

@@ -4,9 +4,61 @@ namespace App\Http\Controllers;
 
 use App\Models\Airtime;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class AirtimeController extends Controller
 {
+    /**
+     * Retry a failed airtime transaction by resetting status to Pending.
+     *
+     * @param  int|string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function retryAirtime($id)
+    {
+        $airtime = Airtime::find($id);
+        if (!$airtime) {
+            return response()->json(['message' => 'Airtime record not found.'], 404);
+        }
+
+        $airtime->status = 'Pending';
+        $airtime->transactionId = (string) Str::uuid();
+        $airtime->nextAttempt = Carbon::now();
+        $airtime->response = 'Reset to Pending for processing retry';
+        $airtime->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Transaction #{$id} ({$airtime->msisdn}) reset to Pending. It will be picked by the scheduler.",
+            'airtime' => $airtime,
+        ]);
+    }
+
+    /**
+     * Retry all failed airtime transactions by resetting status to Pending.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function retryAllFailed()
+    {
+        $failedTransactions = Airtime::whereIn('status', ['Failed', 'failed'])->get();
+        $count = $failedTransactions->count();
+
+        foreach ($failedTransactions as $transaction) {
+            $transaction->status = 'Pending';
+            $transaction->transactionId = (string) Str::uuid();
+            $transaction->nextAttempt = Carbon::now();
+            $transaction->response = 'Reset to Pending for processing retry';
+            $transaction->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Successfully reset {$count} failed transaction(s) to Pending.",
+            'count' => $count,
+        ]);
+    }
     /**
      * Display a listing of the resource with search and status filter.
      *

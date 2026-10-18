@@ -1,5 +1,43 @@
 <template>
   <div class="container mx-auto py-8 px-4 max-w-7xl">
+    <!-- Toast Notification -->
+    <transition
+      enter-active-class="transform ease-out duration-300 transition"
+      enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+      enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+      leave-active-class="transition ease-in duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="toast.show"
+        class="fixed top-20 right-6 z-50 max-w-md w-full bg-white shadow-2xl rounded-2xl border pointer-events-auto p-4 flex items-start gap-3"
+        :class="toast.type === 'error' ? 'border-rose-200 text-rose-900' : 'border-emerald-200 text-emerald-900'"
+      >
+        <div
+          class="p-2 rounded-xl shrink-0"
+          :class="toast.type === 'error' ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'"
+        >
+          <XCircleIcon v-if="toast.type === 'error'" class="w-5 h-5" />
+          <CheckCircleIcon v-else class="w-5 h-5" />
+        </div>
+        <div class="flex-1 text-sm font-medium pt-1">
+          <p class="font-semibold" :class="toast.type === 'error' ? 'text-rose-950' : 'text-emerald-950'">
+            {{ toast.title }}
+          </p>
+          <p class="text-xs mt-0.5" :class="toast.type === 'error' ? 'text-rose-700' : 'text-emerald-700'">
+            {{ toast.message }}
+          </p>
+        </div>
+        <button
+          @click="toast.show = false"
+          class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors"
+        >
+          <XMarkIcon class="w-4 h-4" />
+        </button>
+      </div>
+    </transition>
+
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
       <div>
@@ -28,72 +66,7 @@
       </div>
     </div>
 
-    <!-- Summary Stats Bar -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <!-- Total Dispatched -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#005cb4] flex items-center justify-center shrink-0">
-          <SignalIcon class="w-6 h-6" />
-        </div>
-        <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Dispatches</p>
-          <div class="flex items-baseline gap-2 mt-0.5">
-            <span class="text-2xl font-black text-slate-800">{{ (summary.total_count || entries.total || 0).toLocaleString() }}</span>
-            <span class="text-xs text-slate-500">records</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Total Amount -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-          <BanknotesIcon class="w-6 h-6" />
-        </div>
-        <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Disbursed</p>
-          <div class="flex items-baseline gap-2 mt-0.5">
-            <span class="text-2xl font-black text-slate-800">UGX {{ Number(summary.total_amount || 0).toLocaleString() }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Successful / Sent -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-          <CheckCircleIcon class="w-6 h-6" />
-        </div>
-        <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Delivered / Sent</p>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="flex h-2 w-2 relative">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span class="text-xl font-bold text-slate-800">{{ (summary.sent_count || 0).toLocaleString() }}</span>
-            <span class="text-xs text-emerald-600 font-medium">delivered</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pending / Failed -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-          <ClockIcon class="w-6 h-6" />
-        </div>
-        <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pending / Retries</p>
-          <div class="flex items-baseline gap-2 mt-0.5">
-            <span class="text-xl font-bold text-slate-800">{{ (summary.pending_count || 0).toLocaleString() }}</span>
-            <span class="text-xs text-slate-400 font-normal">pending</span>
-            <span v-if="summary.failed_count > 0" class="text-xs text-rose-600 font-semibold ml-1">
-              ({{ summary.failed_count }} failed)
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Card -->
+    <!-- Main Table Card -->
     <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
       <!-- Search & Filters Toolbar -->
       <div class="p-5 border-b border-slate-100 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-slate-50/50">
@@ -187,12 +160,26 @@
           </span>
           <span class="text-blue-600">({{ entries.total || 0 }} matches found)</span>
         </div>
-        <button
-          @click="resetAllFilters"
-          class="font-semibold text-blue-700 hover:text-blue-900 underline ml-4"
-        >
-          Reset to all
-        </button>
+
+        <div class="flex items-center gap-3 ml-4">
+          <button
+            v-if="hasFailedInCurrentView"
+            @click="retryAllFailedTransactions"
+            :disabled="isRetryingAll"
+            class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all active:scale-95 disabled:opacity-50"
+            title="Reset all failed transactions to Pending"
+          >
+            <ArrowPathIcon class="w-3.5 h-3.5" :class="{ 'animate-spin': isRetryingAll }" />
+            <span>Retry All Failed</span>
+          </button>
+
+          <button
+            @click="resetAllFilters"
+            class="font-semibold text-blue-700 hover:text-blue-900 underline"
+          >
+            Reset to all
+          </button>
+        </div>
       </div>
 
       <!-- Table View -->
@@ -206,7 +193,7 @@
               <th scope="col" class="py-3.5 px-6">Amount</th>
               <th scope="col" class="py-3.5 px-6">Dispatched At</th>
               <th scope="col" class="py-3.5 px-6">Channel / Response</th>
-              <th scope="col" class="py-3.5 px-6 text-right">Action</th>
+              <th scope="col" class="py-3.5 px-6 text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 text-sm">
@@ -234,7 +221,7 @@
                   <div class="h-4 bg-slate-200 rounded w-44"></div>
                 </td>
                 <td class="py-4 px-6 text-right">
-                  <div class="h-7 bg-slate-200 rounded w-16 ml-auto"></div>
+                  <div class="h-7 bg-slate-200 rounded w-28 ml-auto"></div>
                 </td>
               </tr>
             </template>
@@ -310,7 +297,8 @@
                   </div>
                   <div
                     v-if="td.response"
-                    class="text-[11px] text-slate-500 max-w-xs truncate mt-0.5"
+                    class="text-[11px] max-w-xs truncate mt-0.5"
+                    :class="isFailedStatus(td.status) ? 'text-rose-600 font-medium' : 'text-slate-500'"
                     :title="td.response"
                   >
                     {{ td.response }}
@@ -322,14 +310,29 @@
 
                 <!-- Actions -->
                 <td class="py-4 px-6 text-right" @click.stop>
-                  <button
-                    @click="openDetails(td)"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all active:scale-95"
-                    title="View transaction details"
-                  >
-                    <EyeIcon class="w-3.5 h-3.5 text-slate-500" />
-                    <span>Details</span>
-                  </button>
+                  <div class="flex items-center justify-end gap-2">
+                    <!-- Retry Button for Failed Transactions -->
+                    <button
+                      v-if="isFailedStatus(td.status)"
+                      @click="retrySingleTransaction(td)"
+                      :disabled="retryingId === td.id"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-all active:scale-95 disabled:opacity-50"
+                      title="Reset status to Pending so processing script can re-attempt dispatch"
+                    >
+                      <ArrowPathIcon class="w-3.5 h-3.5" :class="{ 'animate-spin': retryingId === td.id }" />
+                      <span>Retry</span>
+                    </button>
+
+                    <!-- Details Button -->
+                    <button
+                      @click="openDetails(td)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all active:scale-95"
+                      title="View transaction details"
+                    >
+                      <EyeIcon class="w-3.5 h-3.5 text-slate-500" />
+                      <span>Details</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </template>
@@ -560,7 +563,10 @@
                   <!-- Provider Description / Response -->
                   <div class="p-3 bg-white border border-slate-200/80 rounded-xl text-xs">
                     <span class="text-slate-400 font-medium block mb-1">Gateway Response Message</span>
-                    <div class="text-slate-700 bg-slate-50 p-2.5 rounded-lg text-xs leading-relaxed">
+                    <div
+                      class="p-2.5 rounded-lg text-xs leading-relaxed"
+                      :class="isFailedStatus(selectedAirtime.status) ? 'bg-rose-50 text-rose-800 border border-rose-200/60' : 'bg-slate-50 text-slate-700'"
+                    >
                       {{ selectedAirtime.response || 'No description returned by provider.' }}
                     </div>
                   </div>
@@ -575,7 +581,19 @@
                 </div>
 
                 <!-- Modal Actions -->
-                <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                  <div>
+                    <!-- Retry Button in Modal -->
+                    <button
+                      v-if="selectedAirtime && isFailedStatus(selectedAirtime.status)"
+                      @click="retryModalTransaction"
+                      :disabled="retryingId === selectedAirtime.id"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      <ArrowPathIcon class="w-3.5 h-3.5" :class="{ 'animate-spin': retryingId === selectedAirtime.id }" />
+                      <span>Reset to Pending (Retry)</span>
+                    </button>
+                  </div>
                   <button
                     @click="closeDetails"
                     class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors"
@@ -593,7 +611,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 import moment from 'moment';
@@ -612,9 +630,8 @@ import {
   ArrowPathIcon,
   CheckIcon,
   CheckCircleIcon,
-  ClockIcon,
+  XCircleIcon,
   SignalIcon,
-  BanknotesIcon,
   EyeIcon,
   ClipboardDocumentIcon,
 } from '@heroicons/vue/24/outline';
@@ -631,15 +648,30 @@ const searchQuery = ref('');
 const activeSearch = ref('');
 const selectedStatus = ref('all');
 const copiedId = ref(null);
+const retryingId = ref(null);
+const isRetryingAll = ref(false);
 
-// Summary stats
-const summary = ref({
-  total_count: 0,
-  total_amount: 0,
-  sent_count: 0,
-  pending_count: 0,
-  failed_count: 0,
+// Toast notification
+const toast = ref({
+  show: false,
+  title: '',
+  message: '',
+  type: 'success', // 'success' or 'error'
+  timer: null,
 });
+
+const showToast = (title, message, type = 'success') => {
+  if (toast.value.timer) clearTimeout(toast.value.timer);
+  toast.value = {
+    show: true,
+    title,
+    message,
+    type,
+    timer: setTimeout(() => {
+      toast.value.show = false;
+    }, 4500),
+  };
+};
 
 // Modal state
 const isDetailsOpen = ref(false);
@@ -649,6 +681,16 @@ const selectedAirtime = ref(null);
 const getAuthToken = () => {
   return authStore.token || localStorage.getItem('token');
 };
+
+// Check if status is failed
+const isFailedStatus = (status) => {
+  return String(status || '').toLowerCase() === 'failed';
+};
+
+// Has any failed in current view
+const hasFailedInCurrentView = computed(() => {
+  return entries.value.data?.some((td) => isFailedStatus(td.status));
+});
 
 // Carrier Detection for Uganda Phone Numbers
 const detectCarrier = (phone) => {
@@ -792,23 +834,9 @@ const fetchAirtime = async (page = 1) => {
     lastPage.value = response.data.last_page || 1;
   } catch (err) {
     console.error('Failed to fetch airtime records:', err);
+    showToast('Network Error', 'Failed to retrieve airtime dispatches.', 'error');
   } finally {
     isLoading.value = false;
-  }
-};
-
-// Fetch Summary Stats
-const fetchSummary = async () => {
-  try {
-    const token = getAuthToken();
-    const res = await axios.get('/api/airtime/summary', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    summary.value = res.data;
-  } catch (err) {
-    console.error('Failed to fetch summary stats:', err);
   }
 };
 
@@ -847,8 +875,79 @@ const handlePageChange = (page) => {
 };
 
 const refreshData = () => {
-  fetchSummary();
   fetchAirtime(currentPage.value);
+};
+
+// Retry a single failed transaction
+const retrySingleTransaction = async (item) => {
+  retryingId.value = item.id;
+  try {
+    const token = getAuthToken();
+    const res = await axios.post(`/api/airtime/${item.id}/retry`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Update item locally
+    item.status = 'Pending';
+    item.response = 'Reset to Pending for processing retry';
+    if (res.data.airtime) {
+      Object.assign(item, res.data.airtime);
+    }
+
+    showToast(
+      'Reset to Pending',
+      `Transaction #${item.id} (${formatPhoneNumber(item.msisdn)}) status is now Pending. The processing script will pick it up on its next run.`,
+      'success'
+    );
+  } catch (err) {
+    console.error('Failed to retry airtime transaction:', err);
+    showToast(
+      'Retry Error',
+      err.response?.data?.message || 'Could not reset airtime transaction to pending. Please try again.',
+      'error'
+    );
+  } finally {
+    retryingId.value = null;
+  }
+};
+
+// Retry from modal
+const retryModalTransaction = async () => {
+  if (!selectedAirtime.value) return;
+  await retrySingleTransaction(selectedAirtime.value);
+};
+
+// Retry all failed transactions
+const retryAllFailedTransactions = async () => {
+  isRetryingAll.value = true;
+  try {
+    const token = getAuthToken();
+    const res = await axios.post('/api/airtime/retry-all-failed', {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    showToast(
+      'Bulk Reset Complete',
+      res.data.message || 'All failed transactions have been reset to Pending.',
+      'success'
+    );
+
+    // Refresh current view
+    await fetchAirtime(currentPage.value);
+  } catch (err) {
+    console.error('Failed to bulk retry:', err);
+    showToast(
+      'Bulk Retry Error',
+      err.response?.data?.message || 'Failed to retry all transactions.',
+      'error'
+    );
+  } finally {
+    isRetryingAll.value = false;
+  }
 };
 
 // Modal Details
@@ -868,7 +967,6 @@ onMounted(() => {
     searchQuery.value = String(route.query.search);
     activeSearch.value = String(route.query.search);
   }
-  fetchSummary();
   fetchAirtime(1);
 });
 </script>
